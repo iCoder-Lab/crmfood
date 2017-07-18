@@ -12,12 +12,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -30,12 +30,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -66,7 +66,7 @@ module.exports = function(app) {
               response.send({error: ""})
             })
             .catch(function(err){
-              response.send({error: err})
+              response.status(404).send({error: err})
             })
           }
           else {
@@ -77,17 +77,17 @@ module.exports = function(app) {
               response.send({error: ""})
             })
             .catch(function(err){
-              response.send({error: err})
+              response.status(404).send({error: err})
             })
           }
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -100,12 +100,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -118,14 +118,33 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
+
+  app.post('/departments', bP, function(request, response) {
+    var inp = request.body
+    if (typeof inp.name === 'string' || inp.name instanceof String) {
+      Promise.using(pool(), function(connection) {
+        return connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')')
+        .then(function(rows) {
+          response.send({error: ""})
+        })
+        .catch(function(error) {
+          response.status(404).send({error: error})
+        })
+      })
+    }
+    else {
+      response.status(404).send({error: "data type is wrong!"})
+    }
+  })
+
 
   app.post('/servicePercentage', bP, function(request, response) {
     var inp = request.body
@@ -136,12 +155,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -155,12 +174,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -176,15 +195,15 @@ module.exports = function(app) {
 
           connection.query(query)
           .then(function(rows){
-            console.log(query)
+            response.send({error: ""})
           })
           .catch(function(err){
-            response.send({error: err})
+            response.status(404).send({error: err})
           })
         }
       })
       .catch(function(error) {
-        response.send({error: error})
+        response.status(404).send({error: error})
       })
     })
   })
@@ -198,12 +217,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -224,12 +243,12 @@ module.exports = function(app) {
           response.send({error: ""})
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
 
@@ -243,18 +262,16 @@ module.exports = function(app) {
             response.send({error: ""})
           }
           else {
-            response.send({error: "could not find uniqueid"})
+            response.status(404).send({error: "could not find uniqueid"})
           }
         })
         .catch(function(error) {
-          response.send({error: error})
+          response.status(404).send({error: error})
         })
       })
     }
     else {
-      response.send({error: "data type is wrong!"})
+      response.status(404).send({error: "data type is wrong!"})
     }
   })
-
-
 }
