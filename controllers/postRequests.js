@@ -39,6 +39,24 @@ module.exports = function(app) {
     }
   })
 
+  app.post('/departments', bP, function(request, response) {
+    var inp = request.body
+    if (typeof inp.name === 'string' || inp.name instanceof String) {
+      Promise.using(pool(), function(connection) {
+        return connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')')
+        .then(function(rows) {
+          response.send({error: ""})
+        })
+        .catch(function(error) {
+          response.status(404).send({error: error})
+        })
+      })
+    }
+    else {
+      response.status(404).send({error: "data type is wrong!"})
+    }
+  })
+
   app.post('/users', bP, function(request, response) {
     var inp = request.body
     var name = inp.name
@@ -126,25 +144,6 @@ module.exports = function(app) {
       response.status(404).send({error: "data type is wrong!"})
     }
   })
-
-  app.post('/departments', bP, function(request, response) {
-    var inp = request.body
-    if (typeof inp.name === 'string' || inp.name instanceof String) {
-      Promise.using(pool(), function(connection) {
-        return connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')')
-        .then(function(rows) {
-          response.send({error: ""})
-        })
-        .catch(function(error) {
-          response.status(404).send({error: error})
-        })
-      })
-    }
-    else {
-      response.status(404).send({error: "data type is wrong!"})
-    }
-  })
-
 
   app.post('/servicePercentage', bP, function(request, response) {
     var inp = request.body
@@ -274,4 +273,5 @@ module.exports = function(app) {
       response.status(404).send({error: "data type is wrong!"})
     }
   })
+  
 }

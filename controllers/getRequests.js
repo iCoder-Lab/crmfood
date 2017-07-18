@@ -26,11 +26,35 @@ module.exports = function(app) {
     })
   })
 
+  app.get('/departments', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      return connection.query('SELECT * FROM departments')
+      .then(function(result) {
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
+
   app.get('/users', function(request, response) {
     Promise.using(pool(), function(connection) {
       return connection.query('SELECT * FROM users')
       .then(function(result) {
         response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
+
+  app.get('/userLogin/:login', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      return connection.query('SELECT * FROM users WHERE login = ' + connection.escape(request.params.login))
+      .then(function(result) {
+        response.send(result[0])
       })
       .catch(function(error) {
         response.status(404).send({error: error})
@@ -86,17 +110,6 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/userLogin/:login', function(request, response) {
-    Promise.using(pool(), function(connection) {
-      return connection.query('SELECT * FROM users WHERE login = ' + connection.escape(request.params.login))
-      .then(function(result) {
-        response.send(result[0])
-      })
-      .catch(function(error) {
-        response.status(404).send({error: error})
-      })
-    })
-  })
 
   // app.get('/orders', function(request, response) {
   //   Promise.using(pool(), function(connection) {
