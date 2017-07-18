@@ -164,4 +164,42 @@ module.exports = function(app) {
     })
   })
 
+
+  app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
+    var query = "DELETE FROM mealfororder WHERE orderid = " + request.params.orderid
+              + " AND mealid = " + request.params.mealid
+    Promise.using(pool(), function(connection) {
+      return connection.query(query)
+      .then(function(result) {
+        if(result.affectedRows > 0) {
+          response.send({error: ""})
+        }
+        else {
+          response.status(500).send({error: "there is no such a meal in this order"})
+        }
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
+
+  app.delete('/newOrders', function(request, response) {
+    var query = "DELETE FROM checks WHERE id = " + request.params.id
+    Promise.using(pool(), function(connection) {
+      return connection.query(query)
+      .then(function(result) {
+        if(result.affectedRows > 0) {
+          response.send({error: ""})
+        }
+        else {
+          response.status(500).send({error: "there is no such a check"})
+        }
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
+
 }
