@@ -182,31 +182,40 @@ module.exports = function(app) {
     }
   })
 
-  app.post('/orders', bP, function(request, response) {
-    var inp = request.body
-    Promise.using(pool(), function(connection) {
-      var query = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(inp.waiterid) + ', '
-                              + connection.escape(inp.tableid)  + ');'
-      return connection.query()
-      .then(function(rows) {
-        for(var i = 0; i < inp.meals.length; ++i) {
-          var query = 'INSERT INTO mealfororder(orderid, statusid, mealid) VALUES(' + rows.insertId + ', ' + '(SELECT id FROM statuses WHERE name = "to do"),'
-                      + meals[i] +')'
+  app.post('/orders', bP, function(request, response)
+  {
+     var inp = request.body
+     console.log("Meal length -> " + inp.meals.length);
+     Promise.using(pool(), function(connection)
+     {
+       var query = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(inp.waiterid) + ', '
+                               + connection.escape(inp.tableid)  + ');'
+       connection.query(query)
+       .then(function(rows)
+       {
+         for(var i = 0; i < inp.meals.length; i++)
+         {
+           var m = inp.meals[i]
+           var _query = 'INSERT INTO mealfororder(orderid, statusid, mealid) VALUES(' + rows.insertId + ', ' + '(SELECT id FROM statuses WHERE name = "to do"),'
+                       + m +')'
 
-          connection.query(query)
-          .then(function(rows){
-            response.send({error: ""})
-          })
-          .catch(function(err){
-            response.status(404).send({error: err})
-          })
-        }
-      })
-      .catch(function(error) {
-        response.status(500).send({error: error})
-      })
-    })
-  })
+           connection.query(_query)
+           .then(function(rows)
+           {
+           })
+           .catch(function(err){
+             response.status(404).send({error: err})
+           })
+         }
+
+         response.send({error: ""})
+       })
+       .catch(function(error)
+       {
+         response.status(500).send({error: error})
+       })
+     })
+   })
 
   app.post('/checks', bP, function(request, response) {
     var inp = request.body
