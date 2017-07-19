@@ -110,16 +110,15 @@ module.exports = function(app) {
     })
   })
 
-
-  // app.get('/orders', function(request, response) {
-  //   Promise.using(pool(), function(connection) {
-  //     return connection.query('SELECT * FROM orders')
-  //     .then(function(result) {
-  //       response.send(result)
-  //     })
-  //     .catch(function(error) {
-  //       response.send({error: error})
-  //     })
-  //   })
-  // })
+  app.get('/orders', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      return connection.query('SELECT * FROM orders')
+      .then(function(result) {
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.send({error: error})
+      })
+    })
+  })
 }

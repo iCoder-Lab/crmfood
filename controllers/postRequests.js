@@ -185,8 +185,9 @@ module.exports = function(app) {
   app.post('/orders', bP, function(request, response) {
     var inp = request.body
     Promise.using(pool(), function(connection) {
-      return connection.query('INSERT INTO orders(waiterid, tableid) VALUES("' + connection.escape(inp.waiterid) + '", "'
-                              + connection.escape(inp.tableid)  + '")')
+      var query = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(inp.waiterid) + ', '
+                              + connection.escape(inp.tableid)  + ');'
+      return connection.query()
       .then(function(rows) {
         for(var i = 0; i < inp.meals.length; ++i) {
           var query = 'INSERT INTO mealfororder(orderid, statusid, mealid) VALUES(' + rows.insertId + ', ' + '(SELECT id FROM statuses WHERE name = "to do"),'
@@ -202,7 +203,7 @@ module.exports = function(app) {
         }
       })
       .catch(function(error) {
-        response.status(404).send({error: error})
+        response.status(500).send({error: error})
       })
     })
   })
@@ -273,5 +274,5 @@ module.exports = function(app) {
       response.status(404).send({error: "data type is wrong!"})
     }
   })
-  
+
 }
