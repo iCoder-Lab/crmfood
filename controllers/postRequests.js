@@ -182,8 +182,7 @@ module.exports = function(app) {
     }
   })
 
-  app.post('/orders', bP, function(request, response)
-  {
+  app.post('/orders', bP, function(request, response) {
      var inp = request.body
      console.log("Meal length -> " + inp.meals.length);
      Promise.using(pool(), function(connection)
