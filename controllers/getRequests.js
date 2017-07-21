@@ -110,22 +110,7 @@ module.exports = function(app) {
     })
   })
 
-  /*app.get('/orders', function(request, response) {
-    Promise.using(pool(), function(connection) {
-      return connection.query('SELECT * FROM orders')
-      .then(function(result) {
-        console.log(result);
-        response.send(result)
-      })
-      .catch(function(error) {
-        response.send({error: error})
-      })
-    })
-  })*/
-
-
-  app.get('/orders', function(request, response)
-  {
+  app.get('/orders', function(request, response) {
     const _query = 'select o.id as id, o.waiterid as waiterid, o.tableid as tableid, ' +
     'o.isitopen as isitopen, o.date as date, m.id as mealid, m.name as mealname, m.price as mealprice from orders o inner join ' +
     'mealfororder mfo on o.id = mfo.orderid inner join meals m on m.id = mfo.mealid;'
@@ -175,12 +160,33 @@ module.exports = function(app) {
 
         else
         {
-          response.status(404).send({error: 'no any order for current userid found.'})
+          response.status(404).send({error: 'no order for current userid found.'})
         }
       })
       .catch(function(error)
       {
         response.send({error: error})
+      })
+    })
+  })
+
+  app.get('/checks', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
+      .then(function(result) {
+        result.forEach(function(row) {
+          var price = row.price.toString().toString().split(',').map(function(value) {
+            return {price : Number(value)}
+          })
+          var name = row.name.toString().toString().split(',').map(function(value) {
+            return {name : String(value)}
+          })
+          row.meals = price + name
+        })
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
       })
     })
   })

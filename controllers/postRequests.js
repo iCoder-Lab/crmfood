@@ -222,7 +222,15 @@ module.exports = function(app) {
       Promise.using(pool(), function(connection) {
         return connection.query('INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')')
         .then(function(rows) {
-          response.send({error: ""})
+          var query = 'UPDATE orders SET isitopen = 0 WHERE id  = ' + inp.orderid
+          connection.query(query)
+          .then(function(rows)
+          {
+            response.send({error: ""})
+          })
+          .catch(function(err){
+            response.status(404).send({error: err})
+          })
         })
         .catch(function(error) {
           response.status(404).send({error: error})
