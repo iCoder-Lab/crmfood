@@ -174,14 +174,33 @@ module.exports = function(app) {
     Promise.using(pool(), function(connection) {
       return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
       .then(function(result) {
+        // result.forEach(function(row) {
+        //   var price = row.price.toString().toString().split(',').map(function(value) {
+        //     return {price : Number(value)}
+        //   })
+        //   var name = row.name.toString().toString().split(',').map(function(value) {
+        //     return {name : String(value)}
+        //   })
+        //   row.meals = price + name
+        // })
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
+
+  app.get('/mealsToOrder', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      var query = 'SELECT id AS uniqueid, orderid, GROUP_CONCAT(mealid) AS meals FROM mealfororder GROUP BY orderid'
+      return connection.query(query)
+      .then(function(result) {
         result.forEach(function(row) {
-          var price = row.price.toString().toString().split(',').map(function(value) {
-            return {price : Number(value)}
+          row.mealid = row.meals.toString().split(',').map(function(value) {
+            return Number(value)
           })
-          var name = row.name.toString().toString().split(',').map(function(value) {
-            return {name : String(value)}
-          })
-          row.meals = price + name
+          delete row.meals
         })
         response.send(result)
       })
