@@ -209,4 +209,33 @@ module.exports = function(app) {
       })
     })
   })
+
+  app.get('/getMealsByCategory/:categoryid', function(request, response)
+  {
+    var inp = request.params.categoryid
+    if(Number.isInteger(parseInt(inp))) 
+    {
+      const categoryid = parseInt(inp)
+      const _query = 'select m.id as id, m.name as name, m.categoryid, m.price as price from meals m inner join categories c ' +
+      'on c.id = m.categoryid where c.id = '
+
+      Promise.using(pool(), function(connection)
+      {
+        return connection.query(_query + connection.escape(categoryid))
+        .then(function(result)
+        {
+          response.send(result)
+        })
+        .catch(function(error)
+        {
+          response.status(404).send({error: error})
+        })
+      })
+    }
+
+    else
+    {
+      response.send('Category id should be a positive integer value')
+    }
+  })
 }
