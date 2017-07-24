@@ -167,8 +167,8 @@ module.exports = function(app) {
     var inp = request.body
     if (typeof inp.name === 'string' || inp.name instanceof String) {
       Promise.using(pool(), function(connection) {
-        return connection.query('INSERT INTO meals(name, categoryid, price) VALUES(' + connection.escape(inp.name) + ', '
-                                + connection.escape(inp.categoryid)  + ', ' + connection.escape(inp.price) + ')')
+        return connection.query('INSERT INTO meals(name, categoryid, price, departmentid) VALUES("' + connection.escape(inp.name) + '", '
+                                + connection.escape(inp.categoryid)  + ', ' + connection.escape(inp.price) +  ', ' + connection.escape(inp.departmentid) +')')
         .then(function(rows) {
           response.send({error: ""})
         })
