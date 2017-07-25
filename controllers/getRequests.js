@@ -109,6 +109,18 @@ module.exports = function(app) {
       })
     })
   })
+  
+  app.get('/getAllOrders', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      return connection.query('SELECT id, waiterid, tableid, isitopen, date FROM orders')
+      .then(function(result) {
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
 
   app.get('/orders', function(request, response) {
     const _query = 'select o.id as id, o.waiterid as waiterid, o.tableid as tableid, ' +
