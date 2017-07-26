@@ -1,5 +1,7 @@
-var Promise = require("bluebird");
-var pool = require('../connection/pool');
+var jwt = require('jsonwebtoken')
+var async = require('async')
+var connection = require('../connection/pool')
+var ensureToken = require('./tokens')
 
 module.exports = function(app) {
   app.get('/tables', function(request, response) {
@@ -50,15 +52,65 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/userLogin/:login', function(request, response) {
-    Promise.using(pool(), function(connection) {
-      return connection.query('SELECT * FROM users WHERE login = ' + connection.escape(request.params.login))
-      .then(function(result) {
-        response.send(result[0])
-      })
-      .catch(function(error) {
+  app.get('/login/:login/:password', function(request, response){
+    var inp = request.params
+    var login = inp.login
+    var password = inp.password
+
+    var token = jwt.sign({login}, login, { expiresIn: "2 days"})
+
+    async.waterfall([
+      function(callback) {
+        var getUserID = 'SELECT id FROM users WHERE login = "' + login + '" AND password = "' + password + '"'
+        connection.query(getUserID, function(error, userID) {
+          if(error || userID.length < 1) {
+            callback("invalid login or password")
+          }
+          else {
+            callback(null, userID[0].id)
+          }
+        })
+      },
+      function(userID, callback) {
+        var deletePrev = 'DELETE FROM tokens WHERE userid = ' + userID
+        connection.query(deletePrev, function(error, rows) {
+          if(error) {
+            callback("internal error")
+          }
+          else {
+            callback(null, userID)
+          }
+        })
+      },
+      function(userID, callback) {
+        var insertNew = 'INSERT INTO tokens(token, userid) VALUES("' + token + '", ' + userID + ')'
+        connection.query(insertNew, function(error, inserted) {
+         if(error) {
+           callback("internal error")
+         }
+         else {
+           callback(null, userID)
+         }
+        })
+      },
+      function(userID, callback) {
+       var getRoleID = 'SELECT roleid FROM users WHERE id = ' + userID
+       connection.query(getRoleID, function(error, roleID) {
+         if(error || roleID.length < 1) {
+           callback("user does not have roleid")
+         }
+         else {
+           callback(null, roleID[0].roleid)
+         }
+       })
+      }
+    ], function (error, result) {
+      if(error) {
         response.status(404).send({error: error})
-      })
+      }
+      else {
+        response.send({roleid: result, token: token})
+      }
     })
   })
 
@@ -109,7 +161,7 @@ module.exports = function(app) {
       })
     })
   })
-  
+
   app.get('/getAllOrders', function(request, response) {
     Promise.using(pool(), function(connection) {
       return connection.query('SELECT id, waiterid, tableid, isitopen, date FROM orders')
@@ -225,7 +277,7 @@ module.exports = function(app) {
   app.get('/getMealsByCategory/:categoryid', function(request, response)
   {
     var inp = request.params.categoryid
-    if(Number.isInteger(parseInt(inp))) 
+    if(Number.isInteger(parseInt(inp)))
     {
       const categoryid = parseInt(inp)
       const _query = 'select m.id as id, m.name as name, m.categoryid, m.price as price from meals m inner join categories c ' +

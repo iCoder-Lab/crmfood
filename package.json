@@ -9,10 +9,12 @@
   "author": "Neo",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.5.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "http": "0.0.0",
     "jsonwebtoken": "^7.4.1",
+    "mysql": "^2.13.0",
     "promise-mysql": "^3.0.1",
     "socket.io": "^2.0.3"
   }

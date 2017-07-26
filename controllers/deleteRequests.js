@@ -1,5 +1,7 @@
-var Promise = require("bluebird");
-var pool = require('../connection/pool');
+var Promise = require('bluebird')
+var jwt = require('jsonwebtoken')
+var pool = require('../connection/pool')
+var ensureToken = require('./tokens')
 
 module.exports = function(app)
 {
