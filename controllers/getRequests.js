@@ -175,29 +175,41 @@ module.exports = function(app) {
   })
 
   app.get('/servicePercentage', ensureToken, function(request, response) {
-    // Promise.using(pool(), function(connection) {
-    //   return connection.query('SELECT percentage FROM servicepercentage')
-    //   .then(function(result) {
-    //     response.send(result[0])
-    //   })
-    //   .catch(function(error) {
-    //     response.status(404).send({error: error})
-    //   })
-    // })
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        connection.query('SELECT value AS percentage FROM variables WHERE name = "percentage"', function(error, result) {
+          if(error) {
+            response.status(500).send({error: "some internal error"})
+          }
+          else {
+            response.send(result[0])
+          }
+        })
+      }
+    })
   })
 
-  // app.get('/meals', function(request, response) {
-  //   Promise.using(pool(), function(connection) {
-  //     return connection.query('SELECT * FROM meals')
-  //     .then(function(result) {
-  //       response.send(result)
-  //     })
-  //     .catch(function(error) {
-  //       response.status(404).send({error: error})
-  //     })
-  //   })
-  // })
-  //
+  app.get('/meals', ensureToken, function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        connection.query('SELECT * FROM meals', function(error, result) {
+          if(error) {
+            response.status(500).send({error: "some internal error"})
+          }
+          else {
+            response.send(result)
+          }
+        })
+      }
+    })
+  })
+
   // app.get('/getAllOrders', function(request, response) {
   //   Promise.using(pool(), function(connection) {
   //     return connection.query('SELECT id, waiterid, tableid, isitopen, date FROM orders')
@@ -209,7 +221,7 @@ module.exports = function(app) {
   //     })
   //   })
   // })
-  //
+
   // app.get('/orders', function(request, response) {
   //   const _query = 'select o.id as id, o.waiterid as waiterid, o.tableid as tableid, ' +
   //   'o.isitopen as isitopen, o.date as date, m.id as mealid, m.name as mealname, m.price as mealprice from orders o inner join ' +
@@ -269,7 +281,7 @@ module.exports = function(app) {
   //     })
   //   })
   // })
-  //
+
   // app.get('/checks', function(request, response) {
   //   Promise.using(pool(), function(connection) {
   //     return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
