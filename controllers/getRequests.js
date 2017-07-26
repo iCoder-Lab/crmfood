@@ -210,77 +210,112 @@ module.exports = function(app) {
     })
   })
 
-  // app.get('/getAllOrders', function(request, response) {
-  //   Promise.using(pool(), function(connection) {
-  //     return connection.query('SELECT id, waiterid, tableid, isitopen, date FROM orders')
-  //     .then(function(result) {
-  //       response.send(result)
-  //     })
-  //     .catch(function(error) {
-  //       response.status(404).send({error: error})
-  //     })
-  //   })
-  // })
+  app.get('/categoriesByDepartment/:id', ensureToken, function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        const query = 'SELECT * FROM categories WHERE departmentid = ' + request.params.id
+        connection.query(query, function(error, result) {
+          if(error) {
+            response.status(500).send({error: "some internal error"})
+          }
+          else {
+            response.send(result)
+          }
+        })
+      }
+    })
+  })
 
-  // app.get('/orders', function(request, response) {
-  //   const _query = 'select o.id as id, o.waiterid as waiterid, o.tableid as tableid, ' +
-  //   'o.isitopen as isitopen, o.date as date, m.id as mealid, m.name as mealname, m.price as mealprice from orders o inner join ' +
-  //   'mealfororder mfo on o.id = mfo.orderid inner join meals m on m.id = mfo.mealid;'
+
+  app.get('/mealsByCategory/:id', ensureToken, function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        const query = 'SELECT * FROM meals WHERE categoryid = ' + request.params.id
+        connection.query(query, function(error, result) {
+          if(error) {
+            response.status(500).send({error: "some internal error"})
+          }
+          else {
+            response.send(result)
+          }
+        })
+      }
+    })
+  })
+
+  // app.get('/orders', ensureToken, function(request, response) {
+  //   const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
   //
-  //   Promise.using(pool(), function(connection)
-  //   {
-  //     return connection.query(_query)
-  //     .then(function(res)
-  //     {
-  //       if(res.length > 0)
-  //       {
-  //         var ob = JSON.parse(JSON.stringify(res))
-  //         var last = []
-  //         var t = {}
-  //         var oid = ob[0].id
-  //         var count = 0
-  //         var meal = {}
-  //         t.meals = []
-  //         for(var i = 0; i < ob.length; i++) {
-  //           if(oid != ob[i].id) {
-  //             oid = ob[i].id
-  //             last.push(t)
-  //             t = {}
-  //             t.meals = []
-  //           }
-  //
-  //           t.id = ob[i].id
-  //           t.waiterid = ob[i].waiterid
-  //           t.tableid = ob[i].tableid
-  //           t.isitopen = ob[i].isitopen
-  //           t.date = ob[i].date
-  //           meal.mealid = ob[i].mealid
-  //           meal.mealname = ob[i].mealname
-  //           meal.mealprice = ob[i].mealprice
-  //           //t.meals.push(meal)
-  //           t.meals.push(ob[i].mealid)
-  //           meal = {}
-  //         }
-  //
-  //         if(t.length != 0)
-  //         {
-  //           last.push(t)
-  //         }
-  //
-  //         response.json(last)
-  //       }
-  //
-  //       else
-  //       {
-  //         response.status(404).send({error: 'no order for current userid found.'})
-  //       }
-  //     })
-  //     .catch(function(error)
-  //     {
-  //       response.send({error: error})
-  //     })
+  //   connection.query(query, function(error, result) {
+  //     if(error) {
+  //       console.log(error);
+  //       response.status(500).send({error: "some internal error"})
+  //     }
+  //     else {
+  //       result.forEach(function(element) {
+  //         console.log(element);
+  //       })
+  //       response.send(result)
+  //     }
   //   })
   // })
+    //   .then(function(res)
+    //   {
+    //     if(res.length > 0)
+    //     {
+    //       var ob = JSON.parse(JSON.stringify(res))
+    //       var last = []
+    //       var t = {}
+    //       var oid = ob[0].id
+    //       var count = 0
+    //       var meal = {}
+    //       t.meals = []
+    //       for(var i = 0; i < ob.length; i++) {
+    //         if(oid != ob[i].id) {
+    //           oid = ob[i].id
+    //           last.push(t)
+    //           t = {}
+    //           t.meals = []
+    //         }
+    //
+    //         t.id = ob[i].id
+    //         t.waiterid = ob[i].waiterid
+    //         t.tableid = ob[i].tableid
+    //         t.isitopen = ob[i].isitopen
+    //         t.date = ob[i].date
+    //         meal.mealid = ob[i].mealid
+    //         meal.mealname = ob[i].mealname
+    //         meal.mealprice = ob[i].mealprice
+    //         //t.meals.push(meal)
+    //         t.meals.push(ob[i].mealid)
+    //         meal = {}
+    //       }
+    //
+    //       if(t.length != 0)
+    //       {
+    //         last.push(t)
+    //       }
+    //
+    //       response.json(last)
+    //     }
+    //
+    //     else
+    //     {
+    //       response.status(404).send({error: 'no order for current userid found.'})
+    //     }
+    //   })
+    //   .catch(function(error)
+    //   {
+    //     response.send({error: error})
+    //   })
+    // })
+    // })
 
   // app.get('/checks', function(request, response) {
   //   Promise.using(pool(), function(connection) {
