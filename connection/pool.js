@@ -1,16 +1,20 @@
-var mysql = require('promise-mysql');
+var mysql = require('mysql')
 
-pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'crmfood'
-});
+var pool = mysql.createConnection
+({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'crmfood'
+})
 
-function getSqlConnection() {
-  return pool.getConnection().disposer(function(connection) {
-    pool.releaseConnection(connection);
-  });
-}
+pool.connect(function(error)
+{
+  console.log('connected to db, CRM-Food');
+  if (error) {
+    console.log(' Error when connecting to db:' + error)
+    setTimeout(handleDisconnect, 1000)
+  }
+})
 
-module.exports = getSqlConnection;
+module.exports = pool

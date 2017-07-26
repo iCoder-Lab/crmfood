@@ -1,38 +1,53 @@
-var Promise = require("bluebird");
-var pool = require('../connection/pool');
+var Promise = require('bluebird')
+var jwt = require('jsonwebtoken')
+var pool = require('../connection/pool')
+var ensureToken = require('./tokens')
 
-module.exports = function(app) {
-  app.delete('/tables/:id', function(request, response) {
+module.exports = function(app)
+{
+  app.delete('/tables/:id', function(request, response)
+  {
     var query = "DELETE FROM tables WHERE id = " + request.params.id
-    Promise.using(pool(), function(connection) {
+    Promise.using(pool(), function(connection)
+    {
       return connection.query(query)
-      .then(function(result) {
-        if(result.affectedRows > 0) {
+      .then(function(result)
+      {
+        if(result.affectedRows > 0)
+        {
           response.send({error: ""})
         }
-        else {
+        else
+        {
           response.status(500).send({error: "there is no such a table"})
         }
       })
-      .catch(function(error) {
+      .catch(function(error)
+      {
         response.status(404).send({error: error})
       })
     })
   })
 
-  app.delete('/roles/:id', function(request, response) {
+  app.delete('/roles/:id', function(request, response)
+  {
     var query = "DELETE FROM roles WHERE id = " + request.params.id
-    Promise.using(pool(), function(connection) {
+    Promise.using(pool(), function(connection)
+    {
       return connection.query(query)
-      .then(function(result) {
-        if(result.affectedRows > 0) {
+      .then(function(result)
+      {
+        if(result.affectedRows > 0)
+        {
           response.send({error: ""})
         }
-        else {
+        else
+        {
           response.status(500).send({error: "there is no such a role"})
         }
       })
-      .catch(function(error) {
+      .catch(function(error)
+      {
         response.status(404).send({error: error})
       })
     })
