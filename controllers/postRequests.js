@@ -266,9 +266,8 @@ module.exports = function(app) {
                  callback(null, "")
                }
              })
-           }
-
-         ], function (error, result) {
+           }],
+         function (error, result) {
            if(error) {
              response.status(400).send({error: error})
            }
@@ -365,42 +364,39 @@ module.exports = function(app) {
     })
   })
 
-  // app.post('/mealsToOrder', bP, ensureToken, function(request, response) {
-  //   var inp = request.body
-  //   jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //     if(error) {
-  //       console.log(error);
-  //       response.status(404).send({error: "invalid heasder"})
-  //     }
-  //     else {
-  //       if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
-  //         async.waterfall([
-  //           function(callback) {
-  //             for(var i = 0; i < inp.meals.length; ++i) {
-  //               var mealForOrder = 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + inp.orderid + ', '  + inp.meals[i].count + ', '
-  //                         + '(SELECT id FROM statuses WHERE name = "to do"),' + inp.meals[i].id +')'
-  //               connection.query(mealForOrder, function(error, order) {
-  //                 if(error) {
-  //                   callback("could not insert this user")
-  //                 }
-  //               })
-  //             }
-  //             callback(null, "")
-  //           }
-  //         ], function (error, result) {
-  //           if(error) {
-  //             response.send({error: error})
-  //           }
-  //           else {
-  //             response.send({error: result})
-  //           }
-  //         })
-  //       }
-  //       else {
-  //         response.status(404).send({error: "data type is wrong!"})
-  //       }
-  //     }
-  //   })
-  // })
-
+  app.post('/mealsToOrder', bP, ensureToken, function(request, response) {
+    var inp = request.body
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        console.log(error);
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        async.waterfall([
+          function(callback) {
+            var _query =  ""
+            inp.meals.forEach(function(item) {
+              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + inp.orderid + ", " + item.count + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ");"
+            })
+             connection.query(_query, function(error, result) {
+               if(error) {
+                 //deleteEverything(orderID)
+                 callback(error)
+               }
+               else {
+                 callback(null, "")
+               }
+             })
+           }
+        ], function (error, result) {
+          if(error) {
+            response.send({error: error})
+          }
+          else {
+            response.send({error: result})
+          }
+        })
+      }
+    })
+  })
 }
