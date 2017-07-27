@@ -249,74 +249,38 @@ module.exports = function(app) {
     })
   })
 
-  // app.get('/orders', ensureToken, function(request, response) {
-  //   const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
-  //
-  //   connection.query(query, function(error, result) {
-  //     if(error) {
-  //       console.log(error);
-  //       response.status(500).send({error: "some internal error"})
-  //     }
-  //     else {
-  //       result.forEach(function(element) {
-  //         console.log(element);
-  //       })
-  //       response.send(result)
-  //     }
-  //   })
-  // })
-    //   .then(function(res)
-    //   {
-    //     if(res.length > 0)
-    //     {
-    //       var ob = JSON.parse(JSON.stringify(res))
-    //       var last = []
-    //       var t = {}
-    //       var oid = ob[0].id
-    //       var count = 0
-    //       var meal = {}
-    //       t.meals = []
-    //       for(var i = 0; i < ob.length; i++) {
-    //         if(oid != ob[i].id) {
-    //           oid = ob[i].id
-    //           last.push(t)
-    //           t = {}
-    //           t.meals = []
-    //         }
-    //
-    //         t.id = ob[i].id
-    //         t.waiterid = ob[i].waiterid
-    //         t.tableid = ob[i].tableid
-    //         t.isitopen = ob[i].isitopen
-    //         t.date = ob[i].date
-    //         meal.mealid = ob[i].mealid
-    //         meal.mealname = ob[i].mealname
-    //         meal.mealprice = ob[i].mealprice
-    //         //t.meals.push(meal)
-    //         t.meals.push(ob[i].mealid)
-    //         meal = {}
-    //       }
-    //
-    //       if(t.length != 0)
-    //       {
-    //         last.push(t)
-    //       }
-    //
-    //       response.json(last)
-    //     }
-    //
-    //     else
-    //     {
-    //       response.status(404).send({error: 'no order for current userid found.'})
-    //     }
-    //   })
-    //   .catch(function(error)
-    //   {
-    //     response.send({error: error})
-    //   })
-    // })
-    // })
+  app.get('/orders', ensureToken, function(request, response) {
+    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
 
+    connection.query(query, function(error, result) {
+      if(error) {
+        console.log(error);
+        response.status(500).send({error: "some internal error"})
+      }
+      else {
+        result.forEach(function(element) {
+          var ids = element.mealid.split(',')
+          var names = element.mealname.split(',')
+          var counts = element.mealcount.split(',')
+          var meals = []
+          names.forEach(function(name, i) {
+            var meal = new Object()
+            meal.id = ids[i]
+            meal.name = name
+            meal.count = counts[i]
+            var jsonMeal = JSON.stringify(meal)
+            meals.push(meal)
+          })
+          element.meals = meals
+          delete element.mealid
+          delete element.mealname
+          delete element.mealcount
+        })
+        response.send(result)
+      }
+    })
+  })
+  
   // app.get('/checks', function(request, response) {
   //   Promise.using(pool(), function(connection) {
   //     return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
