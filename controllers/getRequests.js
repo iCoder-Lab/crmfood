@@ -280,6 +280,39 @@ module.exports = function(app) {
     })
   })
 
+  app.get('/activeOrders', ensureToken, function(request, response) {
+    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
+                + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.isitopen = false GROUP BY o.id'
+
+    connection.query(query, function(error, result) {
+      if(error) {
+        console.log(error);
+        response.status(500).send({error: "some internal error"})
+      }
+      else {
+        result.forEach(function(element) {
+          var ids = element.mealid.split(',')
+          var names = element.mealname.split(',')
+          var counts = element.mealcount.split(',')
+          var meals = []
+          names.forEach(function(name, i) {
+            var meal = new Object()
+            meal.id = ids[i]
+            meal.name = name
+            meal.count = counts[i]
+            var jsonMeal = JSON.stringify(meal)
+            meals.push(meal)
+          })
+          element.meals = meals
+          delete element.mealid
+          delete element.mealname
+          delete element.mealcount
+        })
+        response.send(result)
+      }
+    })
+  })
+
   // app.get('/checks', function(request, response) {
   //   Promise.using(pool(), function(connection) {
   //     return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
