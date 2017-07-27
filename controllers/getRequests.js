@@ -156,6 +156,25 @@ module.exports = function(app) {
     })
   })
 
+  app.get('/categoriesByDepartment/:id', ensureToken, function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        const query = 'SELECT * FROM categories WHERE departmentid = ' + request.params.id
+        connection.query(query, function(error, result) {
+          if(error) {
+            response.status(500).send({error: "some internal error"})
+          }
+          else {
+            response.send(result)
+          }
+        })
+      }
+    })
+  })
+
   app.get('/statuses', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
@@ -210,26 +229,6 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/categoriesByDepartment/:id', ensureToken, function(request, response) {
-    jwt.verify(request.token, request.headers['login'], function(error, data) {
-      if(error) {
-        response.status(404).send({error: "invalid heasder"})
-      }
-      else {
-        const query = 'SELECT * FROM categories WHERE departmentid = ' + request.params.id
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"})
-          }
-          else {
-            response.send(result)
-          }
-        })
-      }
-    })
-  })
-
-
   app.get('/mealsByCategory/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
@@ -280,7 +279,7 @@ module.exports = function(app) {
       }
     })
   })
-  
+
   // app.get('/checks', function(request, response) {
   //   Promise.using(pool(), function(connection) {
   //     return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
@@ -301,52 +300,23 @@ module.exports = function(app) {
   //     })
   //   })
   // })
-  //
-  // app.get('/mealsToOrder', function(request, response) {
-  //   Promise.using(pool(), function(connection) {
-  //     var query = 'SELECT id AS uniqueid, orderid, GROUP_CONCAT(mealid) AS meals FROM mealfororder GROUP BY orderid'
-  //     return connection.query(query)
-  //     .then(function(result) {
-  //       result.forEach(function(row) {
-  //         row.mealid = row.meals.toString().split(',').map(function(value) {
-  //           return Number(value)
-  //         })
-  //         delete row.meals
-  //       })
-  //       response.send(result)
-  //     })
-  //     .catch(function(error) {
-  //       response.status(404).send({error: error})
-  //     })
-  //   })
-  // })
-  //
-  // app.get('/getMealsByCategory/:categoryid', function(request, response) {
-  //   var inp = request.params.categoryid
-  //   if(Number.isInteger(parseInt(inp)))
-  //   {
-  //     const categoryid = parseInt(inp)
-  //     const _query = 'select m.id as id, m.name as name, m.categoryid, m.price as price from meals m inner join categories c ' +
-  //     'on c.id = m.categoryid where c.id = '
-  //
-  //     Promise.using(pool(), function(connection)
-  //     {
-  //       return connection.query(_query + connection.escape(categoryid))
-  //       .then(function(result)
-  //       {
-  //         response.send(result)
-  //       })
-  //       .catch(function(error)
-  //       {
-  //         response.status(404).send({error: error})
-  //       })
-  //     })
-  //   }
-  //
-  //   else
-  //   {
-  //     response.send('Category id should be a positive integer value')
-  //   }
-  // })
-  //
+
+  app.get('/mealsToOrder', function(request, response) {
+    Promise.using(pool(), function(connection) {
+      var query = 'SELECT id AS uniqueid, orderid, GROUP_CONCAT(mealid) AS meals FROM mealfororder GROUP BY orderid'
+      return connection.query(query)
+      .then(function(result) {
+        result.forEach(function(row) {
+          row.mealid = row.meals.toString().split(',').map(function(value) {
+            return Number(value)
+          })
+          delete row.meals
+        })
+        response.send(result)
+      })
+      .catch(function(error) {
+        response.status(404).send({error: error})
+      })
+    })
+  })
 }

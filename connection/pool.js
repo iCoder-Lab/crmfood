@@ -5,7 +5,8 @@ var pool = mysql.createConnection
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'crmfood'
+    database: 'crmfood',
+    multipleStatements: true
 })
 
 pool.connect(function(error)

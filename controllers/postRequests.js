@@ -221,80 +221,98 @@ module.exports = function(app) {
     })
   })
 
-  // app.post('/orders', bP, ensureToken, function(request, response) {
-  //    var inp = request.body
-  //    jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //      if(error) {
-  //        console.log(error);
-  //        response.status(404).send({error: "invalid heasder"})
-  //      }
-  //      else {
-  //        async.waterfall([
-  //          function(callback) {
-  //            var getUserID = 'SELECT id FROM users WHERE login = "' + request.headers['login'] + '"'
-  //            connection.query(getUserID, function(error, rows) {
-  //              if(error) {
-  //                callback("cannot find waiter id")
-  //              }
-  //              else {
-  //                callback(null, rows[0].id)
-  //              }
-  //            })
-  //          },
-  //          function(userID, callback) {
-  //            var insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + userID + ', ' + inp.tableid + ');'
-  //            connection.query(insertOrder, function(error, order) {
-  //              if(error || order == null || order == undefined) {
-  //                callback("cannot insert order")
-  //              }
-  //              else {
-  //                callback(null, order.insertId)
-  //              }
-  //            })
-  //          },
-  //          function(orderID, callback) {
-  //           //  for(var i = 0; i < inp.meals.length; i++)
-  //           //  {
-  //           //    var meal = inp.meals[i]
-  //           //    var mealForOrder = 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + orderID + ', ' + meal.count + ', ' + '(SELECT id FROM statuses WHERE name = "to do"),'
-  //           //                + meal.id +')'
-  //            //
-  //           //    connection.query(mealForOrder, function(error, order) {
-  //           //      if(error) {
-  //           //        callback("wrong meal id", orderID)
-  //           //      }
-  //           //    })
-  //           //  }
-  //           var _query =  "BEGIN TRY BEGIN TRAN INSERT INTO tables(name) VALUES('fdg');  "
-  //           // inp.meals.forEach(function(item) {
-  //           //   _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + orderID + ", " + item.count + '(SELECT id FROM statuses WHERE name = "to do"),' + item.id + ");"
-  //           // })
-  //           _query +=  " COMMIT TRAN END TRY BEGIN CATCH IF @@TRANCOUNT <> 0 ROLLBACK TRAN ;THROW END IF; END CATCH;"
-	//            connection.query(_query, function(error, result) {
-  //              if(error) {
-  //                callback(error)
-  //              }
-  //              else {
-  //                callback(null, "")
-  //              }
-  //            })
-  //
-  //          },
-  //          function(error, orderid, callback) {
-  //            console.log("success");
-  //          }
-  //
-  //        ], function (error, result) {
-  //          if(error) {
-  //            response.status(400).send({error: error})
-  //          }
-  //          else {
-  //            response.send({error: result})
-  //          }
-  //        })
-  //      }
-  //    })
-  //  })
+  app.post('/orders', bP, ensureToken, function(request, response) {
+     var inp = request.body
+     jwt.verify(request.token, request.headers['login'], function(error, data) {
+       if(error) {
+         console.log(error);
+         response.status(404).send({error: "invalid heasder"})
+       }
+       else {
+         async.waterfall([
+           function(callback) {
+             var getUserID = 'SELECT id FROM users WHERE login = "' + request.headers['login'] + '"'
+             connection.query(getUserID, function(error, rows) {
+               if(error) {
+                 callback("cannot find waiter id")
+               }
+               else {
+                 callback(null, rows[0].id)
+               }
+             })
+           },
+           function(userID, callback) {
+             var insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + userID + ', ' + inp.tableid + ');'
+             connection.query(insertOrder, function(error, order) {
+               if(error || order == null || order == undefined) {
+                 callback("cannot insert order")
+               }
+               else {
+                 callback(null, order.insertId)
+               }
+             })
+           },
+           function(orderID, callback) {
+            var _query =  ""
+            inp.meals.forEach(function(item) {
+              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + orderID + ", " + item.count + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ");"
+            })
+	           connection.query(_query, function(error, result) {
+               if(error) {
+                 deleteEverything(orderID)
+                 callback(error)
+               }
+               else {
+                 callback(null, "")
+               }
+             })
+           }
+
+         ], function (error, result) {
+           if(error) {
+             response.status(400).send({error: error})
+           }
+           else {
+             response.send({error: result})
+           }
+         })
+       }
+     })
+   })
+
+  function deleteEverything(orderID) {
+    async.waterfall([
+      function(callback) {
+        var deleteOrder = 'DELETE FROM orders WHERE id = ' + orderID
+        connection.query(deleteOrder, function(error, rows) {
+          if(error) {
+            callback("cannot delete order")
+          }
+          else {
+            callback(null)
+          }
+        })
+      },
+      function(callback) {
+        var deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + orderID
+        connection.query(deleteMealForOrder, function(error, order) {
+          if(error) {
+            callback("cannot delete mealfororder")
+          }
+          else {
+            callback(null, "")
+          }
+        })
+      }
+    ], function (error, result) {
+      if(error) {
+        console.log(error)
+      }
+      else {
+        console.log(result)
+      }
+    })
+  }
 
   app.post('/checks', bP, ensureToken, function(request, response) {
     var inp = request.body
@@ -376,37 +394,6 @@ module.exports = function(app) {
   //           else {
   //             response.send({error: result})
   //           }
-  //         })
-  //       }
-  //       else {
-  //         response.status(404).send({error: "data type is wrong!"})
-  //       }
-  //     }
-  //   })
-  // })
-
-  // app.post('/changeStatus', bP, ensureToken, function(request, response) {
-  //   var inp = request.body
-  //   jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //     if(error) {
-  //       console.log(error);
-  //       response.status(404).send({error: "invalid heasder"})
-  //     }
-  //     else {
-  //       if (typeof inp.uniqueid === 'number' || inp.uniqueid instanceof Number) {
-  //         var
-  //         connection.query('UPDATE mealfororder SET statusid = ' + connection.escape(inp.statusid) + ' WHERE id = ' + connection.escape(inp.uniqueid))
-  //           .then(function(rows) {
-  //             if(rows.changedRows > 0) {
-  //               response.send({error: ""})
-  //             }
-  //             else {
-  //               response.status(404).send({error: "could not find uniqueid"})
-  //             }
-  //           })
-  //           .catch(function(error) {
-  //             response.status(404).send({error: error})
-  //           })
   //         })
   //       }
   //       else {
