@@ -88,7 +88,7 @@ module.exports = function(app) {
                     + name.substr(0, (name.indexOf(' ') < 0) ? (name.length):name.indexOf(' '))
           async.waterfall([
             function(callback) {
-              var checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase()) + '% ORDER BY login Desc LIMIT 1'
+              var checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
               connection.query(checkForLogin, function(error, rows) {
                 var number = ""
                 if(rows.length > 0) {
