@@ -88,7 +88,7 @@ module.exports = function(app) {
                     + name.substr(0, (name.indexOf(' ') < 0) ? (name.length):name.indexOf(' '))
           async.waterfall([
             function(callback) {
-              var checkForLogin = 'SELECT login FROM users WHERE login LIKE "' + login.toLowerCase() + '%" ORDER BY login Desc LIMIT 1'
+              var checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase()) + '% ORDER BY login Desc LIMIT 1'
               connection.query(checkForLogin, function(error, rows) {
                 var number = ""
                 if(rows.length > 0) {
@@ -105,8 +105,9 @@ module.exports = function(app) {
               })
             },
             function(login, callback) {
-              var insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + inp.roleid + ', "'
-                          + name + '", "' + surname + '", "' + login.toLowerCase() + '", "' + inp.phone + '","' + inp.phone + '", "' + inp.email + '")'
+              var insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
+                          + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
+                          + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
               connection.query(insertUser, function(error, rows) {
                 if(error) {
                   callback("could not insert this user")
@@ -119,7 +120,7 @@ module.exports = function(app) {
 
           ], function (error, result) {
             if(error) {
-              response.send({error: error})
+              response.status(500).send({error: error})
             }
             else {
               response.send({error: result})
@@ -141,7 +142,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO categories(name, departmentid) VALUES("' + inp.name + '", ' + inp.departmentid + ')'
+        var query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
         connection.query(query,
         function(error, result) {
           if(error) {
@@ -184,7 +185,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + inp.percentage + ')'
+        var query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
         connection.query(query,
           function(error, result) {
             if(error) {
@@ -206,8 +207,8 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO meals(name, categoryid, description, price) VALUES("' + inp.name + '", ' + inp.categoryid  + ', "'
-                  + inp.description + '", ' + inp.price + ')'
+        var query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
+                  + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
         connection.query(query,
         function(error, result) {
           if(error) {
@@ -231,7 +232,7 @@ module.exports = function(app) {
        else {
          async.waterfall([
            function(callback) {
-             var getUserID = 'SELECT id FROM users WHERE login = "' + request.headers['login'] + '"'
+             var getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
              connection.query(getUserID, function(error, rows) {
                if(error) {
                  callback("cannot find waiter id")
@@ -242,7 +243,7 @@ module.exports = function(app) {
              })
            },
            function(userID, callback) {
-             var insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + userID + ', ' + inp.tableid + ');'
+             var insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
              connection.query(insertOrder, function(error, order) {
                if(error || order == null || order == undefined) {
                  callback("cannot insert order")
@@ -255,7 +256,7 @@ module.exports = function(app) {
            function(orderID, callback) {
             var _query =  ""
             inp.meals.forEach(function(item) {
-              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + orderID + ", " + item.count + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ");"
+              _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
             })
 	           connection.query(_query, function(error, result) {
                if(error) {
@@ -282,7 +283,7 @@ module.exports = function(app) {
   function deleteEverything(orderID) {
     async.waterfall([
       function(callback) {
-        var deleteOrder = 'DELETE FROM orders WHERE id = ' + orderID
+        var deleteOrder = 'DELETE FROM orders WHERE id = ' + connection.escape(orderID)
         connection.query(deleteOrder, function(error, rows) {
           if(error) {
             callback("cannot delete order")
@@ -293,7 +294,7 @@ module.exports = function(app) {
         })
       },
       function(callback) {
-        var deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + orderID
+        var deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + connection.escape(orderID)
         connection.query(deleteMealForOrder, function(error, order) {
           if(error) {
             callback("cannot delete mealfororder")
@@ -324,7 +325,7 @@ module.exports = function(app) {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
           async.waterfall([
             function(callback) {
-              var query = 'INSERT INTO checks(orderid) VALUES(' + inp.orderid + ')'
+              var query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
               connection.query(query,
               function(error, result) {
                 if(error) {
@@ -336,7 +337,7 @@ module.exports = function(app) {
               })
             },
             function(orderID, callback) {
-              var updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + orderID
+              var updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
               connection.query(updateStatus, function(error, order) {
                 if(error) {
                   callback("could not insert this user")
@@ -349,7 +350,7 @@ module.exports = function(app) {
 
           ], function (error, result) {
             if(error) {
-              response.send({error: error})
+              response.status(500).send({error: error})
             }
             else {
               response.send({error: result})
@@ -376,7 +377,8 @@ module.exports = function(app) {
           function(callback) {
             var _query =  ""
             inp.meals.forEach(function(item) {
-              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + inp.orderid + ", " + item.count + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ");"
+              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
+                      + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ");"
             })
              connection.query(_query, function(error, result) {
                if(error) {
@@ -390,7 +392,56 @@ module.exports = function(app) {
            }
         ], function (error, result) {
           if(error) {
-            response.send({error: error})
+            response.status(500).send({error: error})
+          }
+          else {
+            response.send({error: result})
+          }
+        })
+      }
+    })
+  })
+
+  app.put('/changePassword', bP, ensureToken, function(request, response) {
+    var inp = request.body
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        console.log(error);
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        async.waterfall([
+          function(callback) {
+            var query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
+                      + " AND password = " + connection.escape(inp.oldpassword)
+             connection.query(query, function(error, result) {
+               if(error) {
+                 callback(error)
+               }
+               else {
+                 if(result.length > 0) {
+                   callback(null, result[0].id)
+                 }
+                 else {
+                   callback("wrong old password")
+                 }
+               }
+             })
+           },
+           function(userid, callback) {
+             var query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
+              connection.query(query, function(error, result) {
+                if(error) {
+                  callback("error, cannot change password")
+                }
+                else {
+                  callback(null, "")
+                }
+              })
+            }
+        ], function (error, result) {
+          if(error) {
+            response.status(500).send({error: error})
           }
           else {
             response.send({error: result})

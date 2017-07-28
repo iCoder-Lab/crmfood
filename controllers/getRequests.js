@@ -81,11 +81,11 @@ module.exports = function(app) {
     var login = inp.login
     var password = inp.password
 
-    var token = jwt.sign({login}, login, { expiresIn: "2 days"})
+    var token = jwt.sign({login}, login, { expiresIn: "1 day"})
 
     async.waterfall([
       function(callback) {
-        var getUserID = 'SELECT id FROM users WHERE login = "' + login + '" AND password = "' + password + '"'
+        var getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(login) + ' AND password = ' + connection.escape(password)
         connection.query(getUserID, function(error, userID) {
           if(error || userID.length < 1) {
             callback("invalid login or password")
@@ -96,7 +96,7 @@ module.exports = function(app) {
         })
       },
       function(userID, callback) {
-        var deletePrev = 'DELETE FROM tokens WHERE userid = ' + userID
+        var deletePrev = 'DELETE FROM tokens WHERE userid = ' + connection.escape(userID)
         connection.query(deletePrev, function(error, rows) {
           if(error) {
             callback("internal error")
@@ -107,7 +107,7 @@ module.exports = function(app) {
         })
       },
       function(userID, callback) {
-        var insertNew = 'INSERT INTO tokens(token, userid) VALUES("' + token + '", ' + userID + ')'
+        var insertNew = 'INSERT INTO tokens(token, userid) VALUES(' + connection.escape(token) + ', ' + connection.escape(userID) + ')'
         connection.query(insertNew, function(error, inserted) {
          if(error) {
            callback("internal error")
@@ -118,7 +118,7 @@ module.exports = function(app) {
         })
       },
       function(userID, callback) {
-       var getRoleID = 'SELECT roleid FROM users WHERE id = ' + userID
+       var getRoleID = 'SELECT roleid FROM users WHERE id = ' + connection.escape(userID)
        connection.query(getRoleID, function(error, roleID) {
          if(error || roleID.length < 1) {
            callback("user does not have roleid")
@@ -162,7 +162,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        const query = 'SELECT * FROM categories WHERE departmentid = ' + request.params.id
+        const query = 'SELECT * FROM categories WHERE departmentid = ' + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -235,7 +235,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        const query = 'SELECT * FROM meals WHERE categoryid = ' + request.params.id
+        const query = 'SELECT * FROM meals WHERE categoryid = ' + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -249,7 +249,8 @@ module.exports = function(app) {
   })
 
   app.get('/orders', ensureToken, function(request, response) {
-    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
+    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, '
+                + ' GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
 
     connection.query(query, function(error, result) {
       if(error) {
@@ -320,7 +321,7 @@ module.exports = function(app) {
 
     connection.query(query, function(error, result) {
       if(error) {
-        response.send("errrrrroooorrrr")
+        response.send({error: "errrrrroooorrrr"})
       }
       else {
         result.forEach(function(element) {

@@ -10,7 +10,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM tables WHERE id = " + request.params.id
+        var query = "DELETE FROM tables WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -34,7 +34,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM roles WHERE id = " + request.params.id
+        var query = "DELETE FROM roles WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -58,7 +58,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM departments WHERE id = " + request.params.id
+        var query = "DELETE FROM departments WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -82,7 +82,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM users WHERE id = " + request.params.id
+        var query = "DELETE FROM users WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -106,7 +106,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM categories WHERE id = " + request.params.id
+        var query = "DELETE FROM categories WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -130,7 +130,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM statuses WHERE id = " + request.params.id
+        var query = "DELETE FROM statuses WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -178,7 +178,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM meals WHERE id = " + request.params.id
+        var query = "DELETE FROM meals WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
@@ -226,7 +226,7 @@ module.exports = function(app) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = "DELETE FROM checks WHERE id = " + request.params.id
+        var query = "DELETE FROM checks WHERE id = " + connection.escape(request.params.id)
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
