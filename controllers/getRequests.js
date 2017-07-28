@@ -266,7 +266,7 @@ module.exports = function(app) {
             var meal = new Object()
             meal.id = ids[i]
             meal.name = name
-            meal.count = counts[i]
+            meal.amount = counts[i]
             var jsonMeal = JSON.stringify(meal)
             meals.push(meal)
           })
@@ -299,7 +299,7 @@ module.exports = function(app) {
             var meal = new Object()
             meal.id = ids[i]
             meal.name = name
-            meal.count = counts[i]
+            meal.amount = counts[i]
             var jsonMeal = JSON.stringify(meal)
             meals.push(meal)
           })
@@ -313,26 +313,45 @@ module.exports = function(app) {
     })
   })
 
-  // app.get('/checks', function(request, response) {
-  //   Promise.using(pool(), function(connection) {
-  //     return connection.query('SELECT o.id AS orderid, o.date, GROUP_CONCAT(m.name) AS name, GROUP_CONCAT(m.price) AS price FROM orders AS o, mealfororder AS mo INNER JOIN meals AS m ON m.id = mo.mealid WHERE mo.orderid = o.id GROUP BY o.id')
-  //     .then(function(result) {
-  //       // result.forEach(function(row) {
-  //       //   var price = row.price.toString().toString().split(',').map(function(value) {
-  //       //     return {price : Number(value)}
-  //       //   })
-  //       //   var name = row.name.toString().toString().split(',').map(function(value) {
-  //       //     return {name : String(value)}
-  //       //   })
-  //       //   row.meals = price + name
-  //       // })
-  //       response.send(result)
-  //     })
-  //     .catch(function(error) {
-  //       response.status(404).send({error: error})
-  //     })
-  //   })
-  // })
+  app.get('/checks', function(request, response) {
+    var query = 'SELECT c.id as id, o.id as orderid, c.date as date, CAST((select value from variables where name = "percentage") AS UNSIGNED) as servicefee, '
+              + 'GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount, GROUP_CONCAT(m.price) as mealprice FROM checks AS c '
+              + 'INNER JOIN orders as o ON o.id = c.orderid INNER JOIN mealfororder as mo ON mo.orderid = o.id INNER JOIN meals AS m on m.id = mo.mealid GROUP BY o.id'
+
+    connection.query(query, function(error, result) {
+      if(error) {
+        response.send("errrrrroooorrrr")
+      }
+      else {
+        result.forEach(function(element) {
+          var ids = element.mealid.split(',')
+          var names = element.mealname.split(',')
+          var counts = element.mealcount.split(',')
+          var prices = element.mealprice.split(',')
+          var meals = []
+          var totalsum = 0
+          names.forEach(function(name, i) {
+            var meal = new Object()
+            meal.id = ids[i]
+            meal.name = name
+            meal.amount = counts[i]
+            meal.price = prices[i]
+            meal.total = prices[i] * counts[i]
+            totalsum += meal.total
+            var jsonMeal = JSON.stringify(meal)
+            meals.push(meal)
+          })
+          element.meals = meals
+          element.totalsum = totalsum
+          delete element.mealid
+          delete element.mealname
+          delete element.mealcount
+          delete element.mealprice
+        })
+        response.send(result)
+      }
+    })
+  })
 
   app.get('/mealsToOrder', function(request, response) {
     Promise.using(pool(), function(connection) {
