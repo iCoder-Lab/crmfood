@@ -249,8 +249,8 @@ module.exports = function(app) {
   })
 
   app.get('/orders', ensureToken, function(request, response) {
-    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, '
-                + ' GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid GROUP BY o.id'
+    const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, '
+                + ' GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid INNER JOIN tables as t ON t.id = o.tableid GROUP BY o.id'
 
     connection.query(query, function(error, result) {
       if(error) {
@@ -267,7 +267,7 @@ module.exports = function(app) {
             var meal = new Object()
             meal.id = ids[i]
             meal.name = name
-            meal.amount = counts[i]
+            meal.count = counts[i]
             var jsonMeal = JSON.stringify(meal)
             meals.push(meal)
           })
@@ -282,8 +282,8 @@ module.exports = function(app) {
   })
 
   app.get('/activeOrders', ensureToken, function(request, response) {
-    const query = 'select o.id, o.waiterid, o.tableid, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
-                + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.isitopen = false GROUP BY o.id'
+    const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
+                + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid INNER JOIN tables as t ON t.id = o.tableid WHERE o.isitopen = false GROUP BY o.id'
 
     connection.query(query, function(error, result) {
       if(error) {
@@ -300,7 +300,7 @@ module.exports = function(app) {
             var meal = new Object()
             meal.id = ids[i]
             meal.name = name
-            meal.amount = counts[i]
+            meal.count = counts[i]
             var jsonMeal = JSON.stringify(meal)
             meals.push(meal)
           })
@@ -335,7 +335,7 @@ module.exports = function(app) {
             var meal = new Object()
             meal.id = ids[i]
             meal.name = name
-            meal.amount = counts[i]
+            meal.count = counts[i]
             meal.price = prices[i]
             meal.total = prices[i] * counts[i]
             totalsum += meal.total
