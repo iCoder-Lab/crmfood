@@ -113,17 +113,17 @@ module.exports = function(app) {
                   callback("could not insert this user")
                 }
                 else {
-                  callback(null, "")
+                  callback(null, {login:login.toLowerCase(), password: inp.phone})
                 }
               })
             }
 
-          ], function (error, result) {
+          ], function (error, json) {
             if(error) {
               response.status(500).send({error: error})
             }
             else {
-              response.send({error: result})
+              response.send(json)
             }
           })
         }
@@ -231,6 +231,17 @@ module.exports = function(app) {
        }
        else {
          async.waterfall([
+           function(callback) {
+             var checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
+             connection.query(checkTable, function(error, rows) {
+               if(error || rows.length > 0) {
+                 callback("table is open, close it first")
+               }
+               else {
+                 callback(null)
+               }
+             })
+           },
            function(callback) {
              var getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
              connection.query(getUserID, function(error, rows) {
