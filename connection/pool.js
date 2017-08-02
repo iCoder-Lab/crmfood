@@ -5,7 +5,7 @@ const pool = mysql.createConnection
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'temp',
+    database: 'crmfood',
     multipleStatements: true
 })
 

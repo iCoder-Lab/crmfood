@@ -1,5 +1,5 @@
 function ensureToken(request, response, next) {
-  var bearerHeader = request.headers['auth']
+  let bearerHeader = request.headers['auth']
   if(typeof bearerHeader !== 'undefined') {
     request.token = bearerHeader
     next()

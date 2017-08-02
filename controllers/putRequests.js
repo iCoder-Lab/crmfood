@@ -6,9 +6,9 @@ const bP = require('body-parser').json()
 
 module.exports = function(app) {
   // app.put('/users', bP, ensureToken, function(request, response) {
-  //   var inp = request.body
-  //   var name = inp.name
-  //   var surname = inp.surname
+  //   let inp = request.body
+  //   let name = inp.name
+  //   let surname = inp.surname
   //   jwt.verify(request.token, request.headers['login'], function(error, data) {
   //     if(error) {
   //       console.log(error);
@@ -19,9 +19,9 @@ module.exports = function(app) {
   //           (typeof surname === 'string' || surname instanceof String)) {
   //         async.waterfall([
   //           function(callback) {
-  //             var checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
+  //             let checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
   //             connection.query(checkForLogin, function(error, rows) {
-  //               var number = ""
+  //               let number = ""
   //               if(rows.length > 0) {
   //                 number = rows[rows.length-1].login.match(/\d+/)
   //                 if(number != null) {
@@ -36,7 +36,7 @@ module.exports = function(app) {
   //             })
   //           },
   //           function(login, callback) {
-  //             var insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
+  //             let insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
   //                         + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
   //                         + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
   //             connection.query(insertUser, function(error, rows) {
@@ -66,14 +66,14 @@ module.exports = function(app) {
   // })
   //
   // app.put('/meals', bP, ensureToken, function(request, response) {
-  //   var inp = request.body
+  //   let inp = request.body
   //   jwt.verify(request.token, request.headers['login'], function(error, data) {
   //     if(error) {
   //       console.log(error);
   //       response.status(404).send({error: "invalid heasder"})
   //     }
   //     else {
-  //       var query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
+  //       let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
   //                 + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
   //       connection.query(query,
   //       function(error, result) {
