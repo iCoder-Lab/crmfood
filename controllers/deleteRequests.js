@@ -1,7 +1,7 @@
-var jwt = require('jsonwebtoken')
-var async = require('async')
-var connection = require('../connection/pool')
-var ensureToken = require('./tokens')
+const jwt = require('jsonwebtoken')
+const async = require('async')
+const connection = require('../connection/pool')
+const ensureToken = require('./tokens')
 
 module.exports = function(app) {
   app.delete('/tables/:id', ensureToken, function(request, response) {

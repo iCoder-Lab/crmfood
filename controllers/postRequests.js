@@ -1,7 +1,7 @@
-var async = require('async')
-var jwt = require('jsonwebtoken')
-var connection = require('../connection/pool')
-var ensureToken = require('./tokens')
+const async = require('async')
+const jwt = require('jsonwebtoken')
+const connection = require('../connection/pool')
+const ensureToken = require('./tokens')
 const bP = require('body-parser').json()
 
 module.exports = function(app) {

@@ -1,33 +1,23 @@
-var app = require('express')()
+const app = require('express')()
 const bP = require('body-parser').json()
 const pool = require('./connection/pool')
-var server = require('http').Server(app)
+const server = require('http').Server(app)
 // var io = require('socket.io')(server)
 // const jwt = require('jsonwebtoken')
 
 server.listen(3000, '')
 console.log('Listening to CRM-Food -> 3000')
 
-var postRequests = require('./controllers/postRequests')
-var getRequests = require('./controllers/getRequests')
-var deleteRequests = require('./controllers/deleteRequests')
-//
-// const TokenGenerator = require('./controllers/tokenGenerator')
-getRequests(app)
+const postRequests = require('./controllers/postRequests')
+const putRequests = require('./controllers/putRequests')
+const getRequests = require('./controllers/getRequests')
+const deleteRequests = require('./controllers/deleteRequests')
+
 postRequests(app)
+putRequests(app)
+getRequests(app)
 deleteRequests(app)
 
-// //-----------------------------------------------------------------------------
-// const tokenGenerator = new TokenGenerator('a', 'a', { algorithm: 'HS256', keyid: '1', noTimestamp: false, expiresIn: '15m' })
-// token = tokenGenerator.sign({ myclaim: 'something' }, { audience: 'myaud', issuer: 'myissuer', jwtid: '1', subject: 'user' })
-//console.log(jwt.decode(token, { complete: true }))
-/*setTimeout(function ()
-{
-  token2 = tokenGenerator.refresh(token, { verify: { audience: 'myaud', issuer: 'myissuer' }, jwtid: '2' })
-  console.log(jwt.decode(token, { complete: true }))
-  console.log(jwt.decode(token2, { complete: true }))
-}, 3000)
-*/
 //-----------------------------------------------------------------------------
 // users = []
 // connections = []
