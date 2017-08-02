@@ -389,11 +389,12 @@ module.exports = function(app) {
             var _query =  ""
             inp.meals.forEach(function(item) {
               _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
-                      + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ");"
+                      + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
+                      + connection.escape(item.count)
             })
              connection.query(_query, function(error, result) {
                if(error) {
-                 //deleteEverything(orderID)
+                 console.log(error);
                  callback(error)
                }
                else {
