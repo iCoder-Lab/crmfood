@@ -196,29 +196,56 @@ module.exports = function(app) {
     })
   })
 
-  // app.delete('/orders/:id', ensureToken, function(request, response) {
-  //   jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //     if(error) {
-  //       response.status(404).send({error: "invalid heasder"})
-  //     }
-  //     else {
-  //       let query = "DELETE FROM orders WHERE id = " + request.params.id
-  //       connection.query(query, function(error, result) {
-  //         if(error) {
-  //           response.status(500).send({error: "some internal error"})
-  //         }
-  //         else {
-  //           if(result.affectedRows > 0) {
-  //             response.send({error: ""})
-  //           }
-  //           else {
-  //             response.status(500).send({error: "there is no such an order"})
-  //           }
-  //         }
-  //       })
-  //     }
-  //   })
-  // })
+  app.delete('/orders/:id', ensureToken, function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        async.waterfall([
+          function(callback) {
+            let query = "DELETE FROM mealfororder WHERE orderid = " + request.params.id
+            connection.query(query, function(error, result) {
+              if(error) {
+                callback("could not delete meals of the order")
+              }
+              else {
+                if(result.affectedRows > 0) {
+                  callback(null)
+                }
+                else {
+                  callback("there is no such an meal")
+                }
+              }
+            })
+          },
+          function(callback) {
+            let query = "DELETE FROM orders WHERE id = " + request.params.id
+            connection.query(query, function(error, result) {
+              if(error) {
+                callback("could not delete the order")
+              }
+              else {
+                if(result.affectedRows > 0) {
+                  callback(null, "")
+                }
+                else {
+                  callback("there is no such an order")
+                }
+              }
+            })
+          }
+        ], function (error, result) {
+          if(error) {
+            response.status(404).send({error: error})
+          }
+          else {
+            response.send({error: result})
+          }
+        })
+      }
+    })
+  })
 
   app.delete('/checks/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
@@ -244,29 +271,27 @@ module.exports = function(app) {
     })
   })
 
-  // app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
-  //   jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //     if(error) {
-  //       response.status(404).send({error: "invalid heasder"})
-  //     }
-  //     else {
-  //       let query = "DELETE FROM mealfororder WHERE orderid = " + request.params.orderid
-  //                 + " AND mealid = " + request.params.mealid
-  //       connection.query(query, function(error, result) {
-  //         if(error) {
-  //           response.status(500).send({error: "some internal error"})
-  //         }
-  //         else {
-  //           if(result.affectedRows > 0) {
-  //             response.send({error: ""})
-  //           }
-  //           else {
-  //             response.status(500).send({error: "there is no such a meal in this order"})
-  //           }
-  //         }
-  //       })
-  //     }
-  //   })
-  // })
-
+  app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        let query = "DELETE FROM mealfororder WHERE orderid = " + request.params.id
+        connection.query(query, function(error, result) {
+          if(error) {
+            response.status(500).send({error:"could not delete meals of the order"})
+          }
+          else {
+            if(result.affectedRows > 0) {
+              response.send({error: ""})
+            }
+            else {
+              response.status(500).send({error:"could not delete meals of the order"})
+            }
+          }
+        })
+      }
+    })
+  })
 }
