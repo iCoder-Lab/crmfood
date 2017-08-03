@@ -1,12 +1,12 @@
-var async = require('async')
-var jwt = require('jsonwebtoken')
-var connection = require('../connection/pool')
-var ensureToken = require('./tokens')
+const async = require('async')
+const jwt = require('jsonwebtoken')
+const connection = require('../connection/pool')
+const ensureToken = require('./tokens')
 const bP = require('body-parser').json()
 
 module.exports = function(app) {
   app.post('/tables', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         response.status(404).send({error: "invalid heasder"})
@@ -31,7 +31,7 @@ module.exports = function(app) {
   })
 
   app.post('/roles', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -52,7 +52,7 @@ module.exports = function(app) {
   })
 
   app.post('/departments', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -73,9 +73,9 @@ module.exports = function(app) {
   })
 
   app.post('/users', bP, ensureToken, function(request, response) {
-    var inp = request.body
-    var name = inp.name
-    var surname = inp.surname
+    let inp = request.body
+    let name = inp.name
+    let surname = inp.surname
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -84,13 +84,13 @@ module.exports = function(app) {
       else {
         if ((typeof name === 'string' || name instanceof String) &&
             (typeof surname === 'string' || surname instanceof String)) {
-          var login = surname.substr(0, (surname.indexOf(' ') < 0) ? (surname.length):surname.indexOf(' ')) + '_'
+          let login = surname.substr(0, (surname.indexOf(' ') < 0) ? (surname.length):surname.indexOf(' ')) + '_'
                     + name.substr(0, (name.indexOf(' ') < 0) ? (name.length):name.indexOf(' '))
           async.waterfall([
             function(callback) {
-              var checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
+              let checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
               connection.query(checkForLogin, function(error, rows) {
-                var number = ""
+                let number = ""
                 if(rows.length > 0) {
                   number = rows[rows.length-1].login.match(/\d+/)
                   if(number != null) {
@@ -105,7 +105,7 @@ module.exports = function(app) {
               })
             },
             function(login, callback) {
-              var insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
+              let insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
                           + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
                           + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
               connection.query(insertUser, function(error, rows) {
@@ -135,14 +135,14 @@ module.exports = function(app) {
   })
 
   app.post('/mealCategories', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
+        let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
         connection.query(query,
         function(error, result) {
           if(error) {
@@ -157,7 +157,7 @@ module.exports = function(app) {
   })
 
   app.post('/statuses', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -178,14 +178,14 @@ module.exports = function(app) {
   })
 
   app.post('/servicePercentage', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
+        let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
         connection.query(query,
           function(error, result) {
             if(error) {
@@ -200,14 +200,14 @@ module.exports = function(app) {
   })
 
   app.post('/meals', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        var query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
+        let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
                   + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
         connection.query(query,
         function(error, result) {
@@ -223,7 +223,7 @@ module.exports = function(app) {
   })
 
   app.post('/orders', bP, ensureToken, function(request, response) {
-     var inp = request.body
+     let inp = request.body
      jwt.verify(request.token, request.headers['login'], function(error, data) {
        if(error) {
          console.log(error);
@@ -232,7 +232,7 @@ module.exports = function(app) {
        else {
          async.waterfall([
            function(callback) {
-             var checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
+             let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
              connection.query(checkTable, function(error, rows) {
                if(error || rows.length > 0) {
                  callback("table is open, close it first")
@@ -243,7 +243,7 @@ module.exports = function(app) {
              })
            },
            function(callback) {
-             var getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
+             let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
              connection.query(getUserID, function(error, rows) {
                if(error) {
                  callback("cannot find waiter id")
@@ -254,7 +254,7 @@ module.exports = function(app) {
              })
            },
            function(userID, callback) {
-             var insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
+             let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
              connection.query(insertOrder, function(error, order) {
                if(error || order == null || order == undefined) {
                  callback("cannot insert order")
@@ -265,7 +265,7 @@ module.exports = function(app) {
              })
            },
            function(orderID, callback) {
-            var _query =  ""
+            let _query =  ""
             inp.meals.forEach(function(item) {
               _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
             })
@@ -294,7 +294,7 @@ module.exports = function(app) {
   function deleteEverything(orderID) {
     async.waterfall([
       function(callback) {
-        var deleteOrder = 'DELETE FROM orders WHERE id = ' + connection.escape(orderID)
+        let deleteOrder = 'DELETE FROM orders WHERE id = ' + connection.escape(orderID)
         connection.query(deleteOrder, function(error, rows) {
           if(error) {
             callback("cannot delete order")
@@ -305,7 +305,7 @@ module.exports = function(app) {
         })
       },
       function(callback) {
-        var deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + connection.escape(orderID)
+        let deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + connection.escape(orderID)
         connection.query(deleteMealForOrder, function(error, order) {
           if(error) {
             callback("cannot delete mealfororder")
@@ -326,7 +326,7 @@ module.exports = function(app) {
   }
 
   app.post('/checks', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -336,7 +336,7 @@ module.exports = function(app) {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
           async.waterfall([
             function(callback) {
-              var query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
+              let query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
               connection.query(query,
               function(error, result) {
                 if(error) {
@@ -348,7 +348,7 @@ module.exports = function(app) {
               })
             },
             function(orderID, callback) {
-              var updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
+              let updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
               connection.query(updateStatus, function(error, order) {
                 if(error) {
                   callback("could not insert this user")
@@ -377,7 +377,7 @@ module.exports = function(app) {
   })
 
   app.post('/mealsToOrder', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -386,7 +386,7 @@ module.exports = function(app) {
       else {
         async.waterfall([
           function(callback) {
-            var _query =  ""
+            let _query =  ""
             inp.meals.forEach(function(item) {
               _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
                       + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
@@ -415,7 +415,7 @@ module.exports = function(app) {
   })
 
   app.put('/changePassword', bP, ensureToken, function(request, response) {
-    var inp = request.body
+    let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
@@ -424,7 +424,7 @@ module.exports = function(app) {
       else {
         async.waterfall([
           function(callback) {
-            var query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
+            let query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
                       + " AND password = " + connection.escape(inp.oldpassword)
              connection.query(query, function(error, result) {
                if(error) {
@@ -441,7 +441,7 @@ module.exports = function(app) {
              })
            },
            function(userid, callback) {
-             var query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
+             let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
               connection.query(query, function(error, result) {
                 if(error) {
                   callback("error, cannot change password")
