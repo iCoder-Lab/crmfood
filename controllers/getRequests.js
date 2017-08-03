@@ -283,7 +283,7 @@ module.exports = function(app) {
 
   app.get('/activeOrders', ensureToken, function(request, response) {
     const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
-                + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid INNER JOIN tables as t ON t.id = o.tableid WHERE o.isitopen = false GROUP BY o.id'
+                + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid INNER JOIN tables as t ON t.id = o.tableid WHERE o.isitopen = true GROUP BY o.id'
 
     connection.query(query, function(error, result) {
       if(error) {
