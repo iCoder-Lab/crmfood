@@ -36,26 +36,26 @@ module.exports = function(app) {
     })
   })
 
-  // app.put('/meals', bP, ensureToken, function(request, response) {
-  //   let inp = request.body
-  //   jwt.verify(request.token, request.headers['login'], function(error, data) {
-  //     if(error) {
-  //       console.log(error);
-  //       response.status(404).send({error: "invalid heasder"})
-  //     }
-  //     else {
-  //       let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
-  //                 + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
-  //       connection.query(query,
-  //       function(error, result) {
-  //         if(error) {
-  //           response.status(500).send({error: "internal error"})
-  //         }
-  //         else {
-  //           response.send({error: ""})
-  //         }
-  //       })
-  //     }
-  //   })
-  // })
+  app.put('/meals', bP, ensureToken, function(request, response) {
+    let inp = request.body
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        console.log(error);
+        response.status(404).send({error: "invalid heasder"})
+      }
+      else {
+        let query = 'UPDATE meals SET name = ' + connection.escape(inp.name) + ', price = ' + connection.escape(inp.price)
+                  + ', description = ' + connection.escape(inp.description) + ' WHERE id = ' + connection.escape(inp.id)
+        connection.query(query,
+        function(error, result) {
+          if(error) {
+            response.status(500).send({error: "internal error"})
+          }
+          else {
+            response.send({error: ""})
+          }
+        })
+      }
+    })
+  })
 }
