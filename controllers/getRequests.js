@@ -248,14 +248,26 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/orders', ensureToken, function(request, response) {
+  app.get('/orders/:days?', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         response.status(404).send({error: "invalid heasder"})
       }
       else {
-        const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, '
-                    + ' GROUP_CONCAT(mo.count) as mealcount from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid INNER JOIN tables as t ON t.id = o.tableid GROUP BY o.id'
+        let toAdd = ' '
+        if(request.params.days == 1) {
+          toAdd = ' WHERE DATE(o.date) = CURDATE() '
+        }
+        else if(request.params.days == 7) {
+          toAdd = ' WHERE WEEKOFYEAR(o.date) = WEEKOFYEAR(NOW()) '
+        }
+        else if(request.params.days == 30) {
+          toAdd = ' WHERE YEAR(o.date) = YEAR(NOW()) AND MONTH(o.date) = MONTH(NOW()) '
+        }
+
+        const query = 'SELECT o.id, o.waiterid, t.name AS tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) AS mealid, GROUP_CONCAT(m.name) AS mealname, GROUP_CONCAT(mo.count) AS mealcount '
+                    + 'FROM orders AS o INNER JOIN mealfororder AS mo ON o.id = mo.orderid INNER JOIN meals AS m ON m.id = mo.mealid INNER JOIN tables AS t ON t.id = o.tableid'
+                    + toAdd + 'GROUP BY o.id'
 
         connection.query(query, function(error, result) {
           if(error) {
@@ -377,6 +389,7 @@ module.exports = function(app) {
   app.get('/mealsToOrder/:id', function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
+        console.log(error);
         response.status(404).send({error: "invalid heasder"})
       }
       else {
