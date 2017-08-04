@@ -267,7 +267,8 @@ module.exports = function(app) {
            function(orderID, callback) {
             let _query =  ""
             inp.meals.forEach(function(item) {
-              _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
+              _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count)
+                      + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
             })
 	           connection.query(_query, function(error, result) {
                if(error) {

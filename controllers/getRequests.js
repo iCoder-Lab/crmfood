@@ -265,7 +265,7 @@ module.exports = function(app) {
           toAdd = ' WHERE YEAR(o.date) = YEAR(NOW()) AND MONTH(o.date) = MONTH(NOW()) '
         }
 
-        const query = 'SELECT o.id, o.waiterid, t.name AS tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) AS mealid, GROUP_CONCAT(m.name) AS mealname, GROUP_CONCAT(mo.count) AS mealcount '
+        const query = 'SELECT o.id, o.waiterid, t.name AS tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) AS mealid, GROUP_CONCAT(m.name) AS mealname, GROUP_CONCAT(mo.count) AS mealcount, 20 AS total '
                     + 'FROM orders AS o INNER JOIN mealfororder AS mo ON o.id = mo.orderid INNER JOIN meals AS m ON m.id = mo.mealid INNER JOIN tables AS t ON t.id = o.tableid'
                     + toAdd + 'GROUP BY o.id'
 
