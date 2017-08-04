@@ -338,7 +338,7 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/checks', function(request, response) {
+  app.get('/checks', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         response.status(404).send({error: "invalid heasder"})
@@ -386,7 +386,7 @@ module.exports = function(app) {
     })
   })
 
-  app.get('/mealsToOrder/:id', function(request, response) {
+  app.get('/mealsToOrder/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
