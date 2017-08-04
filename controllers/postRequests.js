@@ -120,7 +120,7 @@ module.exports = function(app) {
 
           ], function (error, json) {
             if(error) {
-              response.status(500).send({error: error})
+              response.status(500).send({error: "error"})
             }
             else {
               response.send(json)
@@ -272,7 +272,7 @@ module.exports = function(app) {
 	           connection.query(_query, function(error, result) {
                if(error) {
                  deleteEverything(orderID)
-                 callback(error)
+                 callback("error")
                }
                else {
                  callback(null, "")
@@ -361,7 +361,7 @@ module.exports = function(app) {
 
           ], function (error, result) {
             if(error) {
-              response.status(500).send({error: error})
+              response.status(500).send({error: "error"})
             }
             else {
               response.send({error: result})
@@ -390,12 +390,12 @@ module.exports = function(app) {
             inp.meals.forEach(function(item) {
               _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
                       + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
-                      + connection.escape(item.count)
+                      + connection.escape(item.count) + ';'
             })
              connection.query(_query, function(error, result) {
                if(error) {
                  console.log(error);
-                 callback(error)
+                 callback("error")
                }
                else {
                  callback(null, "")
@@ -404,7 +404,7 @@ module.exports = function(app) {
            }
         ], function (error, result) {
           if(error) {
-            response.status(500).send({error: error})
+            response.status(500).send({error: "error"})
           }
           else {
             response.send({error: result})
@@ -428,7 +428,7 @@ module.exports = function(app) {
                       + " AND password = " + connection.escape(inp.oldpassword)
              connection.query(query, function(error, result) {
                if(error) {
-                 callback(error)
+                 callback("error")
                }
                else {
                  if(result.length > 0) {
@@ -453,7 +453,7 @@ module.exports = function(app) {
             }
         ], function (error, result) {
           if(error) {
-            response.status(500).send({error: error})
+            response.status(500).send({error: "error"})
           }
           else {
             response.send({error: result})
