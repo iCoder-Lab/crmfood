@@ -9,14 +9,14 @@ module.exports = function(app) {
     let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
           connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
           function(error, result) {
             if(error) {
-              response.status(500).send({error: "some internal error"})
+              response.status(500).send({error: "error during the query, wrong arguments"})
             }
             else {
               response.send({error: ""})
@@ -35,13 +35,13 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "error during the query, wrong arguments"})
           }
           else {
             response.send({error: ""})
@@ -56,13 +56,13 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "error during the query, wrong arguments"})
           }
           else {
             response.send({error: ""})
@@ -79,7 +79,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         if ((typeof name === 'string' || name instanceof String) &&
@@ -110,7 +110,7 @@ module.exports = function(app) {
                           + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
               connection.query(insertUser, function(error, rows) {
                 if(error) {
-                  callback("could not insert this user")
+                  callback("error during the query, wrong arguments")
                 }
                 else {
                   callback(null, {login:login.toLowerCase(), password: inp.phone})
@@ -120,7 +120,7 @@ module.exports = function(app) {
 
           ], function (error, json) {
             if(error) {
-              response.status(500).send({error: "error"})
+              response.status(500).send({error: "error during the query, wrong arguments"})
             }
             else {
               response.send(json)
@@ -139,14 +139,14 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
         connection.query(query,
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "wrong department id"})
+            response.status(400).send({error: "wrong department id"})
           }
           else {
             response.send({error: ""})
@@ -161,13 +161,13 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "internal error"})
+            response.status(500).send({error: "error during the query, wrong arguments"})
           }
           else {
             response.send({error: ""})
@@ -182,14 +182,14 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
         connection.query(query,
           function(error, result) {
             if(error) {
-              response.status(500).send({error: "internal error"})
+              response.status(500).send({error: "error during the query, wrong arguments"})
             }
             else {
               response.send({error: ""})
@@ -204,7 +204,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
@@ -212,7 +212,7 @@ module.exports = function(app) {
         connection.query(query,
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "internal error"})
+            response.status(500).send({error: "error during the query, wrong arguments"})
           }
           else {
             response.send({error: ""})
@@ -227,10 +227,14 @@ module.exports = function(app) {
      jwt.verify(request.token, request.headers['login'], function(error, data) {
        if(error) {
          console.log(error);
-         response.status(404).send({error: "invalid heasder"})
+         response.status(404).send({error: "invalid header"})
        }
        else {
-         async.waterfall([
+         if(!inp.meals) {
+           response.status(400).send({error: "error, send meals"})
+         }
+         else {
+           async.waterfall([
            function(callback) {
              let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
              connection.query(checkTable, function(error, rows) {
@@ -257,7 +261,7 @@ module.exports = function(app) {
              let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
              connection.query(insertOrder, function(error, order) {
                if(error || order == null || order == undefined) {
-                 callback("cannot insert order")
+                 callback("error during the query, wrong arguments")
                }
                else {
                  callback(null, order.insertId)
@@ -266,6 +270,9 @@ module.exports = function(app) {
            },
            function(orderID, callback) {
             let _query =  ""
+            if(!inp.meals) {
+              response.status(400).send({error: "error during the query, missing meals"})
+            }
             inp.meals.forEach(function(item) {
               _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count)
                       + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
@@ -273,7 +280,7 @@ module.exports = function(app) {
 	           connection.query(_query, function(error, result) {
                if(error) {
                  deleteEverything(orderID)
-                 callback("error")
+                 callback("error during the query, wrong arguments")
                }
                else {
                  callback(null, "")
@@ -288,6 +295,7 @@ module.exports = function(app) {
              response.send({error: result})
            }
          })
+         }
        }
      })
    })
@@ -331,7 +339,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
@@ -341,7 +349,7 @@ module.exports = function(app) {
               connection.query(query,
               function(error, result) {
                 if(error) {
-                  callback("internal error")
+                  callback("error during the query, wrong arguments")
                 }
                 else {
                   callback(null, inp.orderid)
@@ -352,7 +360,7 @@ module.exports = function(app) {
               let updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
               connection.query(updateStatus, function(error, order) {
                 if(error) {
-                  callback("could not insert this user")
+                  callback("error during the query, wrong arguments")
                 }
                 else {
                   callback(null, "")
@@ -362,7 +370,7 @@ module.exports = function(app) {
 
           ], function (error, result) {
             if(error) {
-              response.status(500).send({error: "error"})
+              response.status(500).send({error: error})
             }
             else {
               response.send({error: result})
@@ -382,10 +390,14 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        async.waterfall([
+        if(!inp.meals) {
+          response.status(404).send({error: "error, send meals"})
+        }
+        else {
+          async.waterfall([
           function(callback) {
             let _query =  ""
             inp.meals.forEach(function(item) {
@@ -396,21 +408,22 @@ module.exports = function(app) {
              connection.query(_query, function(error, result) {
                if(error) {
                  console.log(error);
-                 callback("error")
+                 callback("error during the query, wrong arguments")
                }
                else {
                  callback(null, "")
                }
              })
            }
-        ], function (error, result) {
-          if(error) {
-            response.status(500).send({error: "error"})
-          }
-          else {
-            response.send({error: result})
-          }
-        })
+          ], function (error, result) {
+            if(error) {
+              response.status(500).send({error: error})
+            }
+            else {
+              response.send({error: result})
+            }
+          })
+        }
       }
     })
   })
@@ -420,7 +433,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         async.waterfall([
@@ -429,7 +442,7 @@ module.exports = function(app) {
                       + " AND password = " + connection.escape(inp.oldpassword)
              connection.query(query, function(error, result) {
                if(error) {
-                 callback("error")
+                 callback("error during the query, wrong arguments")
                }
                else {
                  if(result.length > 0) {
@@ -445,7 +458,7 @@ module.exports = function(app) {
              let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
               connection.query(query, function(error, result) {
                 if(error) {
-                  callback("error, cannot change password")
+                  callback("error during the query, wrong arguments")
                 }
                 else {
                   callback(null, "")
@@ -454,7 +467,7 @@ module.exports = function(app) {
             }
         ], function (error, result) {
           if(error) {
-            response.status(500).send({error: "error"})
+            response.status(500).send({error: error})
           }
           else {
             response.send({error: result})

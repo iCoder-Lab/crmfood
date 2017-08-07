@@ -12,7 +12,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         if ((typeof name === 'string' || name instanceof String) &&
@@ -22,7 +22,7 @@ module.exports = function(app) {
                          + ' WHERE id = ' + connection.escape(inp.id)
           connection.query(insertUser, function(error, rows) {
             if(error) {
-              response.status(500).send({error:"could not insert this user"})
+              response.status(400).send({error: "error during the query, wrong arguments"})
             }
             else {
               response.send({error:""})
@@ -41,7 +41,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'UPDATE meals SET name = ' + connection.escape(inp.name) + ', price = ' + connection.escape(inp.price)
@@ -49,7 +49,7 @@ module.exports = function(app) {
         connection.query(query,
         function(error, result) {
           if(error) {
-            response.status(500).send({error: "internal error"})
+            response.status(400).send({error: "error during the query, wrong arguments"})
           }
           else {
             response.send({error: ""})
@@ -65,7 +65,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         async.waterfall([

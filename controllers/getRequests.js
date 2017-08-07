@@ -7,7 +7,7 @@ module.exports = function(app) {
   app.get('/tables', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM tables', function(error, result) {
@@ -25,7 +25,7 @@ module.exports = function(app) {
   app.get('/roles', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM roles', function(error, result) {
@@ -43,7 +43,7 @@ module.exports = function(app) {
   app.get('/departments', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM departments', function(error, result) {
@@ -61,7 +61,7 @@ module.exports = function(app) {
   app.get('/users', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM users', function(error, result) {
@@ -141,7 +141,7 @@ module.exports = function(app) {
   app.get('/mealCategories', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM categories', function(error, result) {
@@ -159,7 +159,7 @@ module.exports = function(app) {
   app.get('/categoriesByDepartment/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         const query = 'SELECT * FROM categories WHERE departmentid = ' + connection.escape(request.params.id)
@@ -178,7 +178,7 @@ module.exports = function(app) {
   app.get('/statuses', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM statuses', function(error, result) {
@@ -196,7 +196,7 @@ module.exports = function(app) {
   app.get('/servicePercentage', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT value AS percentage FROM variables WHERE name = "percentage"', function(error, result) {
@@ -214,7 +214,7 @@ module.exports = function(app) {
   app.get('/meals', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         connection.query('SELECT * FROM meals', function(error, result) {
@@ -232,7 +232,7 @@ module.exports = function(app) {
   app.get('/mealsByCategory/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         const query = 'SELECT * FROM meals WHERE categoryid = ' + connection.escape(request.params.id)
@@ -251,7 +251,7 @@ module.exports = function(app) {
   app.get('/orders/:days?', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let toAdd = ' '
@@ -302,7 +302,7 @@ module.exports = function(app) {
   app.get('/activeOrders', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
@@ -341,7 +341,7 @@ module.exports = function(app) {
   app.get('/checks', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'SELECT c.id as id, o.id as orderid, c.date as date, CAST((select value from variables where name = "percentage") AS UNSIGNED) as servicefee, '
@@ -351,7 +351,7 @@ module.exports = function(app) {
         connection.query(query, function(error, result) {
           if(error) {
             console.log(error);
-            response.send({error: "errrrrroooorrrr"})
+            response.status(500).send({error: "internal error"})
           }
           else {
             result.forEach(function(element) {
@@ -390,7 +390,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         let query = 'select o.id, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
@@ -399,7 +399,7 @@ module.exports = function(app) {
         connection.query(query, function(error, result) {
           if(error) {
             console.log(error);
-            response.send({error: "errrrrroooorrrr"})
+            response.status(500).send({error: "wrong order id"})
           }
           else {
             result.forEach(function(element) {

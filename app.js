@@ -1,6 +1,5 @@
 const app = require('express')()
 const bP = require('body-parser').json()
-const pool = require('./connection/pool')
 const server = require('http').Server(app)
 // var io = require('socket.io')(server)
 // const jwt = require('jsonwebtoken')

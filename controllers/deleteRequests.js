@@ -7,21 +7,17 @@ module.exports = function(app) {
   app.delete('/tables/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM tables WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM tables WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(400).send({error: "there is no such a table"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"there is no such a table"})
           }
         })
       }
@@ -31,21 +27,17 @@ module.exports = function(app) {
   app.delete('/roles/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM roles WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM roles WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a role"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"there is no such a role"})
           }
         })
       }
@@ -55,21 +47,17 @@ module.exports = function(app) {
   app.delete('/departments/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM departments WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM departments WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a department"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"there is no such a department"})
           }
         })
       }
@@ -79,21 +67,17 @@ module.exports = function(app) {
   app.delete('/users/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM users WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM users WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such an user"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"there is no such an user"})
           }
         })
       }
@@ -103,21 +87,18 @@ module.exports = function(app) {
   app.delete('/mealCategories/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM categories WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM categories WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
+            console.log(error);
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a category"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"there is no such a category"})
           }
         })
       }
@@ -127,21 +108,17 @@ module.exports = function(app) {
   app.delete('/statuses/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM statuses WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM statuses WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a status"})
-            }
+            response.send({error: (result.affectedRows > 0) ? "":"there is no such a status"})
           }
         })
       }
@@ -151,21 +128,17 @@ module.exports = function(app) {
   app.delete('/servicePercentage', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM variables WHERE name = 'percentage' "
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM variables WHERE name = 'percentage' "
+                  + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is nothing to delete"})
-            }
+            response.send({error: (result.affectedRows > 0) ? "":"there is nothing to delete"})
           }
         })
       }
@@ -175,21 +148,17 @@ module.exports = function(app) {
   app.delete('/meals/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM meals WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM meals WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a meal"})
-            }
+            response.send({error: (result.affectedRows > 0)?"":"there is no such a meal"})
           }
         })
       }
@@ -199,28 +168,25 @@ module.exports = function(app) {
   app.delete('/orders/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
         async.waterfall([
           function(callback) {
-            let query = "DELETE FROM mealfororder WHERE orderid = " + request.params.id
+            let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = "
+                      + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
             connection.query(query, function(error, result) {
               if(error) {
                 callback("could not delete meals of the order")
               }
               else {
-                if(result.affectedRows > 0) {
-                  callback(null)
-                }
-                else {
-                  callback("there is no such an meal")
-                }
+                callback((result.affectedRows > 0) ? null:"there is no such an meal")
               }
             })
           },
           function(callback) {
-            let query = "DELETE FROM orders WHERE id = " + request.params.id
+            let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = "
+                      + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
             connection.query(query, function(error, result) {
               if(error) {
                 callback("could not delete the order")
@@ -250,21 +216,17 @@ module.exports = function(app) {
   app.delete('/checks/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM checks WHERE id = " + connection.escape(request.params.id)
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM checks WHERE id = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error: "some internal error"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error: "there is no such a check"})
-            }
+            response.send({error: (result.affectedRows > 0)?"":"there is no such a check"})
           }
         })
       }
@@ -274,21 +236,17 @@ module.exports = function(app) {
   app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid heasder"})
+        response.status(404).send({error: "invalid header"})
       }
       else {
-        let query = "DELETE FROM mealfororder WHERE orderid = " + request.params.id
+        let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = "
+                  + connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;"
         connection.query(query, function(error, result) {
           if(error) {
             response.status(500).send({error:"could not delete meals of the order"})
           }
           else {
-            if(result.affectedRows > 0) {
-              response.send({error: ""})
-            }
-            else {
-              response.status(500).send({error:"could not delete meals of the order"})
-            }
+            response.send({error: (result.affectedRows > 0)? "":"could not delete meals of the order"})
           }
         })
       }
