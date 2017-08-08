@@ -7,7 +7,7 @@ module.exports = function(app) {
   app.delete('/tables/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM tables WHERE id = "
@@ -27,7 +27,7 @@ module.exports = function(app) {
   app.delete('/roles/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM roles WHERE id = "
@@ -47,7 +47,7 @@ module.exports = function(app) {
   app.delete('/departments/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM departments WHERE id = "
@@ -67,7 +67,7 @@ module.exports = function(app) {
   app.delete('/users/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM users WHERE id = "
@@ -87,7 +87,7 @@ module.exports = function(app) {
   app.delete('/mealCategories/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM categories WHERE id = "
@@ -108,7 +108,7 @@ module.exports = function(app) {
   app.delete('/statuses/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM statuses WHERE id = "
@@ -128,7 +128,7 @@ module.exports = function(app) {
   app.delete('/servicePercentage', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM variables WHERE name = 'percentage' "
@@ -148,7 +148,7 @@ module.exports = function(app) {
   app.delete('/meals/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM meals WHERE id = "
@@ -168,7 +168,7 @@ module.exports = function(app) {
   app.delete('/orders/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         async.waterfall([
@@ -216,7 +216,7 @@ module.exports = function(app) {
   app.delete('/checks/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM checks WHERE id = "
@@ -236,7 +236,7 @@ module.exports = function(app) {
   app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = "

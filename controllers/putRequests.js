@@ -12,7 +12,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         if ((typeof name === 'string' || name instanceof String) &&
@@ -41,7 +41,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = 'UPDATE meals SET name = ' + connection.escape(inp.name) + ', price = ' + connection.escape(inp.price)
@@ -65,7 +65,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         async.waterfall([

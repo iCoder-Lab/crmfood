@@ -9,7 +9,7 @@ module.exports = function(app) {
     let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
@@ -35,7 +35,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
@@ -56,7 +56,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
@@ -79,7 +79,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         if ((typeof name === 'string' || name instanceof String) &&
@@ -139,7 +139,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
@@ -161,7 +161,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
@@ -182,7 +182,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
@@ -204,7 +204,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
@@ -227,7 +227,7 @@ module.exports = function(app) {
      jwt.verify(request.token, request.headers['login'], function(error, data) {
        if(error) {
          console.log(error);
-         response.status(404).send({error: "invalid header"})
+         response.status(401).send({error: "invalid header"})
        }
        else {
          if(!inp.meals) {
@@ -339,7 +339,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
@@ -390,7 +390,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         if(!inp.meals) {
@@ -433,7 +433,7 @@ module.exports = function(app) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
         console.log(error);
-        response.status(404).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"})
       }
       else {
         async.waterfall([
