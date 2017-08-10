@@ -1,21 +1,20 @@
-const app = require('express')()
-const bP = require('body-parser').json()
-const server = require('http').Server(app)
+var app = require('express')();
+var server = require('http').Server(app);
 // var io = require('socket.io')(server)
 // const jwt = require('jsonwebtoken')
 
-server.listen(3000, '')
-console.log('Listening to CRM-Food -> 3000')
+server.listen(3000, '');
+console.log('Listening to CRM-Food -> 3000');
 
-const postRequests = require('./controllers/postRequests')
-const putRequests = require('./controllers/putRequests')
-const getRequests = require('./controllers/getRequests')
-const deleteRequests = require('./controllers/deleteRequests')
+var postRequests = require('./controllers/postRequests');
+var putRequests = require('./controllers/putRequests');
+var getRequests = require('./controllers/getRequests');
+var deleteRequests = require('./controllers/deleteRequests');
 
-postRequests(app)
-putRequests(app)
-getRequests(app)
-deleteRequests(app)
+postRequests(app);
+putRequests(app);
+getRequests(app);
+deleteRequests(app);
 
 //-----------------------------------------------------------------------------
 // users = []

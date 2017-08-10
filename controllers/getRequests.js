@@ -1,321 +1,333 @@
-const jwt = require('jsonwebtoken')
-const async = require('async')
-const connection = require('../connection/pool')
-const ensureToken = require('./tokens')
+var jwt = require('jsonwebtoken')
+var async = require('async')
+var connection = require('../connection/pool')
+var ensureToken = require('./tokens')
 
 module.exports = function(app) {
   app.get('/tables', ensureToken, function(request, response) {
-    jwt.verify(request.token, request.headers['login'], function(error, data) {
+    jwt.verify(request.token, request.headers.login, function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM tables', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
             response.send(result)
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/roles', ensureToken, function(request, response) {
-    jwt.verify(request.token, request.headers['login'], function(error, data) {
+    jwt.verify(request.token, request.headers.login, function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM roles', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/departments', ensureToken, function(request, response) {
-    jwt.verify(request.token, request.headers['login'], function(error, data) {
+    jwt.verify(request.token, request.headers.login, function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM departments', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/users', ensureToken, function(request, response) {
-    jwt.verify(request.token, request.headers['login'], function(error, data) {
+    jwt.verify(request.token, request.headers.login, function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM users', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
             response.send(result)
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/login/:login/:password', function(request, response){
-    let inp = request.params
-    let login = inp.login
-    let password = inp.password
+    let inp = request.params;
+    let login = inp.login;
+    let password = inp.password;
 
-    let token = jwt.sign({login}, login, { expiresIn: "1 day"})
+    let token = jwt.sign({login}, login, { expiresIn: "1 day"});
 
     async.waterfall([
       function(callback) {
-        let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(login) + ' AND password = ' + connection.escape(password)
+        let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(login) + ' AND password = ' + connection.escape(password);
         connection.query(getUserID, function(error, userID) {
           if(error || userID.length < 1) {
-            callback("invalid login or password")
+            callback("invalid login or password");
           }
           else {
             callback(null, userID[0].id)
           }
-        })
+        });
       },
       function(userID, callback) {
-        let deletePrev = 'DELETE FROM tokens WHERE userid = ' + connection.escape(userID)
+        let deletePrev = 'DELETE FROM tokens WHERE userid = ' + connection.escape(userID);
         connection.query(deletePrev, function(error, rows) {
           if(error) {
-            callback("internal error")
+            callback("internal error");
           }
           else {
-            callback(null, userID)
+            callback(null, userID);
           }
-        })
+        });
       },
       function(userID, callback) {
-        let insertNew = 'INSERT INTO tokens(token, userid) VALUES(' + connection.escape(token) + ', ' + connection.escape(userID) + ')'
+        let insertNew = 'INSERT INTO tokens(token, userid) VALUES(' + connection.escape(token) + ', ' + connection.escape(userID) + ')';
         connection.query(insertNew, function(error, inserted) {
          if(error) {
-           callback("internal error")
+           callback("internal error");
          }
          else {
-           callback(null, userID)
+           callback(null, userID);
          }
-        })
+       });
       },
       function(userID, callback) {
-       let getRoleID = 'SELECT roleid FROM users WHERE id = ' + connection.escape(userID)
+       let getRoleID = 'SELECT roleid FROM users WHERE id = ' + connection.escape(userID);
        connection.query(getRoleID, function(error, roleID) {
+         connection.end()
          if(error || roleID.length < 1) {
-           callback("user does not have roleid")
+           callback("user does not have roleid");
          }
          else {
-           callback(null, roleID[0].roleid)
+           callback(null, roleID[0].roleid);
          }
-       })
+       });
       }
     ], function (error, result) {
       if(error) {
-        response.status(404).send({error: error})
+        response.status(404).send({error: error});
       }
       else {
-        response.send({roleid: result, token: token})
+        response.send({roleid: result, token: token});
       }
-    })
-  })
+    });
+  });
 
   app.get('/mealCategories', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM categories', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/categoriesByDepartment/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
-        const query = 'SELECT * FROM categories WHERE departmentid = ' + connection.escape(request.params.id)
+        const query = 'SELECT * FROM categories WHERE departmentid = ' + connection.escape(request.params.id);
         connection.query(query, function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/statuses', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM statuses', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/servicePercentage', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT value AS percentage FROM variables WHERE name = "percentage"', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result[0])
+            response.send(result[0]);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/meals', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         connection.query('SELECT * FROM meals', function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/mealsByCategory/:id', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
-        const query = 'SELECT * FROM meals WHERE categoryid = ' + connection.escape(request.params.id)
+        const query = 'SELECT * FROM meals WHERE categoryid = ' + connection.escape(request.params.id);
         connection.query(query, function(error, result) {
+          connection.end()
           if(error) {
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/orders/:days?', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
-        let toAdd = ' '
+        let toAdd = ' ';
         if(request.params.days == 1) {
-          toAdd = ' WHERE DATE(o.date) = CURDATE() '
+          toAdd = ' WHERE DATE(o.date) = CURDATE() ';
         }
         else if(request.params.days == 7) {
-          toAdd = ' WHERE WEEKOFYEAR(o.date) = WEEKOFYEAR(NOW()) '
+          toAdd = ' WHERE WEEKOFYEAR(o.date) = WEEKOFYEAR(NOW()) ';
         }
         else if(request.params.days == 30) {
-          toAdd = ' WHERE YEAR(o.date) = YEAR(NOW()) AND MONTH(o.date) = MONTH(NOW()) '
+          toAdd = ' WHERE YEAR(o.date) = YEAR(NOW()) AND MONTH(o.date) = MONTH(NOW()) ';
         }
 
-        const query = 'SELECT o.id, o.waiterid, t.name AS tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) AS mealid, GROUP_CONCAT(m.name) AS mealname, GROUP_CONCAT(mo.count) AS mealcount, 20 AS total '
-                    + 'FROM orders AS o INNER JOIN mealfororder AS mo ON o.id = mo.orderid INNER JOIN meals AS m ON m.id = mo.mealid INNER JOIN tables AS t ON t.id = o.tableid'
-                    + toAdd + 'GROUP BY o.id'
+        const query = 'SELECT o.id, o.waiterid, t.name AS tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) AS mealid, GROUP_CONCAT(m.name) AS mealname, GROUP_CONCAT(mo.count) AS mealcount, 20 AS total ' +
+                      'FROM orders AS o INNER JOIN mealfororder AS mo ON o.id = mo.orderid INNER JOIN meals AS m ON m.id = mo.mealid INNER JOIN tables AS t ON t.id = o.tableid' +
+                      toAdd + 'GROUP BY o.id';
 
         connection.query(query, function(error, result) {
+          connection.end()
           if(error) {
             console.log(error);
-            response.status(500).send({error: "some internal error"})
+            response.status(500).send({error: "some internal error"});
           }
           else {
             result.forEach(function(element) {
-              let ids = element.mealid.split(',')
-              let names = element.mealname.split(',')
-              let counts = element.mealcount.split(',')
-              let meals = []
+              let ids = element.mealid.split(',');
+              let names = element.mealname.split(',');
+              let counts = element.mealcount.split(',');
+              let meals = [];
               names.forEach(function(name, i) {
-                let meal = new Object()
-                meal.id = ids[i]
-                meal.name = name
-                meal.count = counts[i]
-                meals.push(meal)
+                let meal = new Object();
+                meal.id = ids[i];
+                meal.name = name;
+                meal.count = counts[i];
+                meals.push(meal);
               })
-              element.meals = meals
-              delete element.mealid
-              delete element.mealname
-              delete element.mealcount
+              element.meals = meals;
+              delete element.mealid;
+              delete element.mealname;
+              delete element.mealcount;
             })
-            response.send(result)
+            response.send(result);
           }
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
   app.get('/activeOrders', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers['login'], function(error, data) {
       if(error) {
-        response.status(401).send({error: "invalid header"})
+        response.status(401).send({error: "invalid header"});
       }
       else {
         async.waterfall([
           function(callback) {
-            let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
+            let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login']);
             connection.query(getUserID, function(error, userID) {
               if(error || userID.length < 1) {
-                callback("invalid login ")
+                callback("invalid login ");
               }
               else {
-                callback(null, userID[0].id)
+                callback(null, userID[0].id);
               }
-            })
+            });
           },
           function(userID, callback) {
             const query = 'select o.id, o.waiterid, t.name as tablename, o.isitopen, o.date, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
@@ -323,6 +335,7 @@ module.exports = function(app) {
                         + userID + ' GROUP BY o.id'
 
             connection.query(query, function(error, result) {
+              connection.end()
               if(error) {
                 console.log(error);
                 callback("some internal error")
@@ -345,7 +358,7 @@ module.exports = function(app) {
                   delete element.mealname
                   delete element.mealcount
                 })
-                callback(result)
+                callback(null,result)
               }
             })
           }
@@ -372,6 +385,7 @@ module.exports = function(app) {
                   + 'INNER JOIN orders as o ON o.id = c.orderid INNER JOIN mealfororder as mo ON mo.orderid = o.id INNER JOIN meals AS m on m.id = mo.mealid GROUP BY c.id'
 
         connection.query(query, function(error, result) {
+          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "internal error"})
@@ -420,6 +434,7 @@ module.exports = function(app) {
                   + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.id = ' + connection.escape(request.params.id) +' GROUP BY o.id'
 
         connection.query(query, function(error, result) {
+          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "wrong order id"})
