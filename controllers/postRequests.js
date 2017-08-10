@@ -112,7 +112,6 @@ module.exports = function(app) {
                           + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
                           + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
               connection.query(insertUser, function(error, rows) {
-                connection.end()
                 if(error) {
                   callback("error during the query, wrong arguments")
                 }
@@ -120,9 +119,9 @@ module.exports = function(app) {
                   callback(null, {login:login.toLowerCase(), password: inp.phone})
                 }
               })
-            }
-
-          ], function (error, json) {
+            }],
+          function (error, json) {
+            connection.end()
             if(error) {
               response.status(500).send({error: "error during the query, wrong arguments"})
             }
@@ -286,7 +285,6 @@ module.exports = function(app) {
                       + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
             })
 	           connection.query(_query, function(error, result) {
-               connection.end()
                if(error) {
                  deleteEverything(orderID)
                  callback("error during the query, wrong arguments")
@@ -297,6 +295,7 @@ module.exports = function(app) {
              })
            }],
          function (error, result) {
+           connection.end()
            if(error) {
              response.status(400).send({error: error})
            }
@@ -314,7 +313,6 @@ module.exports = function(app) {
       function(callback) {
         let deleteOrder = 'DELETE FROM orders WHERE id = ' + connection.escape(orderID)
         connection.query(deleteOrder, function(error, rows) {
-          connection.end()
           if(error) {
             callback("cannot delete order")
           }
@@ -326,7 +324,6 @@ module.exports = function(app) {
       function(callback) {
         let deleteMealForOrder = 'DELETE FROM mealfororder WHERE orderid = ' + connection.escape(orderID)
         connection.query(deleteMealForOrder, function(error, order) {
-          connection.end()
           if(error) {
             callback("cannot delete mealfororder")
           }
@@ -334,8 +331,9 @@ module.exports = function(app) {
             callback(null, "")
           }
         })
-      }
-    ], function (error, result) {
+      }],
+    function (error, result) {
+      connection.end()
       if(error) {
         console.log(error)
       }
@@ -370,7 +368,6 @@ module.exports = function(app) {
             function(orderID, callback) {
               let updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
               connection.query(updateStatus, function(error, order) {
-                connection.end()
                 if(error) {
                   callback("error during the query, wrong arguments")
                 }
@@ -378,9 +375,9 @@ module.exports = function(app) {
                   callback(null, "")
                 }
               })
-            }
-
-          ], function (error, result) {
+            }],
+          function (error, result) {
+            connection.end()
             if(error) {
               response.status(500).send({error: error})
             }
@@ -418,7 +415,6 @@ module.exports = function(app) {
                       + connection.escape(item.count) + ';'
             })
              connection.query(_query, function(error, result) {
-               connection.end()
                if(error) {
                  console.log(error);
                  callback("error during the query, wrong arguments")
@@ -427,8 +423,9 @@ module.exports = function(app) {
                  callback(null, "")
                }
              })
-           }
-          ], function (error, result) {
+           }],
+          function (error, result) {
+            connection.end()
             if(error) {
               response.status(500).send({error: error})
             }
@@ -470,7 +467,6 @@ module.exports = function(app) {
            function(userid, callback) {
              let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
               connection.query(query, function(error, result) {
-                connection.end()
                 if(error) {
                   callback("error during the query, wrong arguments")
                 }
@@ -478,8 +474,9 @@ module.exports = function(app) {
                   callback(null, "")
                 }
               })
-            }
-        ], function (error, result) {
+            }],
+        function (error, result) {
+          connection.end()
           if(error) {
             response.status(500).send({error: error})
           }

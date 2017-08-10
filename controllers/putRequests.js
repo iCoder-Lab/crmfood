@@ -91,7 +91,6 @@ module.exports = function(app) {
            function(userid, callback) {
              let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
               connection.query(query, function(error, result) {
-                connection.end()
                 if(error) {
                   callback("error, cannot change password")
                 }
@@ -101,6 +100,7 @@ module.exports = function(app) {
               })
             }
         ], function (error, result) {
+          connection.end()
           if(error) {
             response.status(500).send({error: error})
           }

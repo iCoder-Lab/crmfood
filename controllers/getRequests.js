@@ -124,7 +124,6 @@ module.exports = function(app) {
       function(userID, callback) {
        let getRoleID = 'SELECT roleid FROM users WHERE id = ' + connection.escape(userID);
        connection.query(getRoleID, function(error, roleID) {
-         connection.end()
          if(error || roleID.length < 1) {
            callback("user does not have roleid");
          }
@@ -132,8 +131,9 @@ module.exports = function(app) {
            callback(null, roleID[0].roleid);
          }
        });
-      }
-    ], function (error, result) {
+      }],
+    function (error, result) {
+      connection.end()
       if(error) {
         response.status(404).send({error: error});
       }
@@ -335,7 +335,6 @@ module.exports = function(app) {
                         + userID + ' GROUP BY o.id'
 
             connection.query(query, function(error, result) {
-              connection.end()
               if(error) {
                 console.log(error);
                 callback("some internal error")
@@ -361,8 +360,9 @@ module.exports = function(app) {
                 callback(null,result)
               }
             })
-          }
-        ], function (error, result) {
+          }],
+        function (error, result) {
+          connection.end()
           if(error) {
             response.status(404).send({error: error})
           }

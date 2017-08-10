@@ -196,7 +196,6 @@ module.exports = function(app) {
             var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = " +
                         connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
             connection.query(query, function(error, result) {
-              connection.end()
               if(error) {
                 callback("could not delete the order");
               }
@@ -209,8 +208,9 @@ module.exports = function(app) {
                 }
               }
             });
-          }
-        ], function (error, result) {
+          }],
+        function (error, result) {
+          connection.end()
           if(error) {
             response.status(404).send({error: error});
           }
