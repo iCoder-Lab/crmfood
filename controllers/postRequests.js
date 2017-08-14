@@ -15,7 +15,6 @@ module.exports = function(app) {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
           connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
           function(error, result) {
-            connection.end()
             if(error) {
               response.status(500).send({error: "error during the query, wrong arguments"})
             }
@@ -41,7 +40,6 @@ module.exports = function(app) {
       else {
         connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "error during the query, wrong arguments"})
           }
@@ -63,7 +61,6 @@ module.exports = function(app) {
       else {
         connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "error during the query, wrong arguments"})
           }
@@ -121,7 +118,6 @@ module.exports = function(app) {
               })
             }],
           function (error, json) {
-            connection.end()
             if(error) {
               response.status(500).send({error: "error during the query, wrong arguments"})
             }
@@ -148,7 +144,6 @@ module.exports = function(app) {
         let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
         connection.query(query,
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(400).send({error: "wrong department id"})
           }
@@ -170,7 +165,6 @@ module.exports = function(app) {
       else {
         connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "error during the query, wrong arguments"})
           }
@@ -193,7 +187,6 @@ module.exports = function(app) {
         let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
         connection.query(query,
           function(error, result) {
-            connection.end()
             if(error) {
               response.status(500).send({error: "error during the query, wrong arguments"})
             }
@@ -217,7 +210,6 @@ module.exports = function(app) {
                   + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
         connection.query(query,
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "error during the query, wrong arguments"})
           }
@@ -295,7 +287,6 @@ module.exports = function(app) {
              })
            }],
          function (error, result) {
-           connection.end()
            if(error) {
              response.status(400).send({error: error})
            }
@@ -333,7 +324,6 @@ module.exports = function(app) {
         })
       }],
     function (error, result) {
-      connection.end()
       if(error) {
         console.log(error)
       }
@@ -377,7 +367,6 @@ module.exports = function(app) {
               })
             }],
           function (error, result) {
-            connection.end()
             if(error) {
               response.status(500).send({error: error})
             }
@@ -425,7 +414,6 @@ module.exports = function(app) {
              })
            }],
           function (error, result) {
-            connection.end()
             if(error) {
               response.status(500).send({error: error})
             }
@@ -476,7 +464,6 @@ module.exports = function(app) {
               })
             }],
         function (error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: error})
           }

@@ -11,7 +11,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM tables', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -30,7 +29,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM roles', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -49,7 +47,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM departments', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -68,7 +65,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM users', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -133,7 +129,6 @@ module.exports = function(app) {
        });
       }],
     function (error, result) {
-      connection.end()
       if(error) {
         response.status(404).send({error: error});
       }
@@ -150,7 +145,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM categories', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -170,7 +164,6 @@ module.exports = function(app) {
       else {
         const query = 'SELECT * FROM categories WHERE departmentid = ' + connection.escape(request.params.id);
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -189,7 +182,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM statuses', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -208,7 +200,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT value AS percentage FROM variables WHERE name = "percentage"', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -227,7 +218,6 @@ module.exports = function(app) {
       }
       else {
         connection.query('SELECT * FROM meals', function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -247,7 +237,6 @@ module.exports = function(app) {
       else {
         const query = 'SELECT * FROM meals WHERE categoryid = ' + connection.escape(request.params.id);
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -281,7 +270,6 @@ module.exports = function(app) {
                       toAdd + 'GROUP BY o.id';
 
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "some internal error"});
@@ -362,7 +350,6 @@ module.exports = function(app) {
             })
           }],
         function (error, result) {
-          connection.end()
           if(error) {
             response.status(404).send({error: error})
           }
@@ -385,7 +372,6 @@ module.exports = function(app) {
                   + 'INNER JOIN orders as o ON o.id = c.orderid INNER JOIN mealfororder as mo ON mo.orderid = o.id INNER JOIN meals AS m on m.id = mo.mealid GROUP BY c.id'
 
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "internal error"})
@@ -434,7 +420,6 @@ module.exports = function(app) {
                   + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.id = ' + connection.escape(request.params.id) +' GROUP BY o.id'
 
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "wrong order id"})

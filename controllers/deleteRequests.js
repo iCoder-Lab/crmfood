@@ -13,7 +13,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM tables WHERE id = " +
             				connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -34,7 +33,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM roles WHERE id = " +
                   	connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -55,7 +53,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM departments WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -76,7 +73,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM users WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -97,7 +93,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM categories WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             console.log(error);
             response.status(500).send({error: "some internal error"});
@@ -119,7 +114,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM statuses WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -140,7 +134,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM variables WHERE name = 'percentage' " +
                     "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -161,7 +154,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM meals WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -210,7 +202,6 @@ module.exports = function(app) {
             });
           }],
         function (error, result) {
-          connection.end()
           if(error) {
             response.status(404).send({error: error});
           }
@@ -231,7 +222,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM checks WHERE id = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: "some internal error"});
           }
@@ -252,7 +242,6 @@ module.exports = function(app) {
         var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
                     connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
         connection.query(query, function(error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error:"could not delete meals of the order"});
           }

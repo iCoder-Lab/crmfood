@@ -21,7 +21,6 @@ module.exports = function(app) {
                          + connection.escape(inp.password) + ', email = ' + connection.escape(inp.email) + ', phone = ' + connection.escape(inp.phone)
                          + ' WHERE id = ' + connection.escape(inp.id)
           connection.query(insertUser, function(error, rows) {
-            connection.end()
             if(error) {
               response.status(400).send({error: "error during the query, wrong arguments"})
             }
@@ -49,7 +48,6 @@ module.exports = function(app) {
                   + ', description = ' + connection.escape(inp.description) + ' WHERE id = ' + connection.escape(inp.id)
         connection.query(query,
         function(error, result) {
-          connection.end()
           if(error) {
             response.status(400).send({error: "error during the query, wrong arguments"})
           }
@@ -100,7 +98,6 @@ module.exports = function(app) {
               })
             }
         ], function (error, result) {
-          connection.end()
           if(error) {
             response.status(500).send({error: error})
           }
