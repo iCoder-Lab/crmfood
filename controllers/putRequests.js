@@ -17,6 +17,7 @@ module.exports = function(app) {
       else {
         if ((typeof name === 'string' || name instanceof String) &&
             (typeof surname === 'string' || surname instanceof String)) {
+          connection.connect()
           let insertUser = 'UPDATE users SET name = ' + connection.escape(inp.name) + ', surname = ' + connection.escape(inp.surname) + ', password = '
                          + connection.escape(inp.password) + ', email = ' + connection.escape(inp.email) + ', phone = ' + connection.escape(inp.phone)
                          + ' WHERE id = ' + connection.escape(inp.id)
@@ -28,6 +29,7 @@ module.exports = function(app) {
               response.send({error:""})
             }
           })
+          connection.end()
         }
         else {
           response.status(400).send({error: "wrong data type"})
@@ -44,10 +46,10 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         let query = 'UPDATE meals SET name = ' + connection.escape(inp.name) + ', price = ' + connection.escape(inp.price)
                   + ', description = ' + connection.escape(inp.description) + ' WHERE id = ' + connection.escape(inp.id)
-        connection.query(query,
-        function(error, result) {
+        connection.query(query, function(error, result) {
           if(error) {
             response.status(400).send({error: "error during the query, wrong arguments"})
           }
@@ -55,6 +57,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -68,6 +71,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         async.waterfall([
           function(callback) {
             let query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
@@ -104,6 +108,7 @@ module.exports = function(app) {
           else {
             response.send({error: result})
           }
+          connection.end()
         })
       }
     })

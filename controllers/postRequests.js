@@ -13,6 +13,7 @@ module.exports = function(app) {
       }
       else {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
+          connection.connect()
           connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
           function(error, result) {
             if(error) {
@@ -22,6 +23,7 @@ module.exports = function(app) {
               response.send({error: ""})
             }
           })
+          connection.end()
         }
         else {
           response.status(404).send({error: "data type is wrong!"})
@@ -38,6 +40,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
@@ -47,6 +50,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -59,6 +63,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
@@ -68,6 +73,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -86,6 +92,7 @@ module.exports = function(app) {
             (typeof surname === 'string' || surname instanceof String)) {
           let login = surname.substr(0, (surname.indexOf(' ') < 0) ? (surname.length):surname.indexOf(' ')) + '_'
                     + name.substr(0, (name.indexOf(' ') < 0) ? (name.length):name.indexOf(' '))
+          connection.connect()
           async.waterfall([
             function(callback) {
               let checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
@@ -124,6 +131,7 @@ module.exports = function(app) {
             else {
               response.send(json)
             }
+            connection.end()
           })
         }
         else {
@@ -141,9 +149,9 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
-        connection.query(query,
-        function(error, result) {
+        connection.query(query, function(error, result) {
           if(error) {
             response.status(400).send({error: "wrong department id"})
           }
@@ -151,6 +159,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -163,6 +172,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
         function(error, result) {
           if(error) {
@@ -172,6 +182,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -184,16 +195,17 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
-        connection.query(query,
-          function(error, result) {
-            if(error) {
-              response.status(500).send({error: "error during the query, wrong arguments"})
-            }
-            else {
-              response.send({error: ""})
-            }
+        connection.query(query, function(error, result) {
+          if(error) {
+            response.status(500).send({error: "error during the query, wrong arguments"})
+          }
+          else {
+            response.send({error: ""})
+          }
         })
+        connection.end()
       }
     })
   })
@@ -206,6 +218,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
                   + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
         connection.query(query,
@@ -217,6 +230,7 @@ module.exports = function(app) {
             response.send({error: ""})
           }
         })
+        connection.end()
       }
     })
   })
@@ -233,6 +247,7 @@ module.exports = function(app) {
            response.status(400).send({error: "error, send meals"})
          }
          else {
+           connection.connect()
            async.waterfall([
            function(callback) {
              let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
@@ -278,8 +293,7 @@ module.exports = function(app) {
             })
 	           connection.query(_query, function(error, result) {
                if(error) {
-                 deleteEverything(orderID)
-                 callback("error during the query, wrong arguments")
+                 callback(deleteEverything(orderID))
                }
                else {
                  callback(null, "")
@@ -293,6 +307,7 @@ module.exports = function(app) {
            else {
              response.send({error: result})
            }
+           connection.end()
          })
          }
        }
@@ -325,10 +340,10 @@ module.exports = function(app) {
       }],
     function (error, result) {
       if(error) {
-        console.log(error)
+        return error
       }
       else {
-        console.log(result)
+        return "error during the query, wrong arguments"
       }
     })
   }
@@ -342,6 +357,7 @@ module.exports = function(app) {
       }
       else {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
+          connection.connect()
           async.waterfall([
             function(callback) {
               let query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
@@ -373,6 +389,7 @@ module.exports = function(app) {
             else {
               response.send({error: result})
             }
+            connection.end()
           })
 
         }
@@ -395,6 +412,7 @@ module.exports = function(app) {
           response.status(404).send({error: "error, send meals"})
         }
         else {
+          connection.connect()
           async.waterfall([
           function(callback) {
             let _query =  ""
@@ -420,6 +438,7 @@ module.exports = function(app) {
             else {
               response.send({error: result})
             }
+            connection.end()
           })
         }
       }
@@ -434,6 +453,7 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
+        connection.connect()
         async.waterfall([
           function(callback) {
             let query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
@@ -470,6 +490,7 @@ module.exports = function(app) {
           else {
             response.send({error: result})
           }
+          connection.end()
         })
       }
     })
