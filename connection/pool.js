@@ -1,10 +1,10 @@
 var mysql = require('mysql')
 
-var connection  = mysql.createPool({
+var pool  = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '1amcoder',
     database: 'LiveSport'
 })
 
-module.exports = connection
+module.exports = pool

@@ -1,6 +1,6 @@
 var jwt = require('jsonwebtoken');
 var async = require('async');
-var connection = require('../connection/pool');
+var pool = require('../connection/pool');
 var ensureToken = require('./tokens');
 
 module.exports = function(app) {
@@ -10,18 +10,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM tables WHERE id = " +
-            				connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"there is no such a table"});
-          }
-        });
-        connection.end()
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM tables WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"there is no such a table"});
+            }
+          });
+        })
       }
     });
   });
@@ -32,18 +33,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM roles WHERE id = " +
-                  	connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"there is no such a role"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM roles WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"there is no such a role"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -54,18 +56,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM departments WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"there is no such a department"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM departments WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"there is no such a department"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -76,18 +79,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM users WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"there is no such an user"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM users WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"there is no such an user"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -98,19 +102,20 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM categories WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            console.log(error);
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"there is no such a category"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM categories WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              console.log(error);
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"there is no such a category"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -121,18 +126,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM statuses WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0) ? "":"there is no such a status"});
-          }
-        });
-        connection.end()
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM statuses WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0) ? "":"there is no such a status"});
+            }
+          });
+        })
       }
     });
   });
@@ -143,18 +149,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM variables WHERE name = 'percentage' " +
-                    "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0) ? "":"there is nothing to delete"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM variables WHERE name = 'percentage' " +
+                      "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0) ? "":"there is nothing to delete"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -165,18 +172,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM meals WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)?"":"there is no such a meal"});
-          }
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM meals WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)?"":"there is no such a meal"});
+            }
+          })
         })
-        connection.end()
       }
     });
   });
@@ -187,46 +195,47 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        async.waterfall([
-          function(callback) {
-            var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
-                        connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-            connection.query(query, function(error, result) {
-              if(error) {
-                callback("could not delete meals of the order");
-              }
-              else {
-                callback((result.affectedRows > 0) ? null:"there is no such an meal");
-              }
-            });
-          },
-          function(callback) {
-            var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = " +
-                        connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-            connection.query(query, function(error, result) {
-              if(error) {
-                callback("could not delete the order");
-              }
-              else {
-                if(result.affectedRows > 0) {
-                  callback(null, "");
+        pool.getConnection(function(err, connection) {
+          async.waterfall([
+            function(callback) {
+              var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
+                          connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+              connection.query(query, function(error, result) {
+                if(error) {
+                  callback("could not delete meals of the order");
                 }
                 else {
-                  callback("there is no such an order");
+                  callback((result.affectedRows > 0) ? null:"there is no such an meal");
                 }
-              }
-            });
-          }],
-        function (error, result) {
-          if(error) {
-            response.status(404).send({error: error});
-          }
-          else {
-            response.send({error: result});
-          }
-          connection.end()
-        });
+              });
+            },
+            function(callback) {
+              var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = " +
+                          connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+              connection.query(query, function(error, result) {
+                if(error) {
+                  callback("could not delete the order");
+                }
+                else {
+                  if(result.affectedRows > 0) {
+                    callback(null, "");
+                  }
+                  else {
+                    callback("there is no such an order");
+                  }
+                }
+              });
+            }],
+          function (error, result) {
+            connection.release()
+            if(error) {
+              response.status(404).send({error: error});
+            }
+            else {
+              response.send({error: result});
+            }
+          });
+        })
       }
     });
   });
@@ -237,18 +246,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM checks WHERE id = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "some internal error"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)?"":"there is no such a check"});
-          }
-        });
-        connection.end()
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM checks WHERE id = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "some internal error"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)?"":"there is no such a check"});
+            }
+          });
+        })
       }
     });
   });
@@ -259,18 +269,19 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"});
       }
       else {
-        connection.connect()
-        var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
-                    connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error:"could not delete meals of the order"});
-          }
-          else {
-            response.send({error: (result.affectedRows > 0)? "":"could not delete meals of the order"});
-          }
-        });
-        connection.end()
+        pool.getConnection(function(err, connection) {
+          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
+                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error:"could not delete meals of the order"});
+            }
+            else {
+              response.send({error: (result.affectedRows > 0)? "":"could not delete meals of the order"});
+            }
+          });
+        })
       }
     });
   });

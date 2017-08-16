@@ -1,6 +1,6 @@
 const async = require('async')
 const jwt = require('jsonwebtoken')
-const connection = require('../connection/pool')
+const pool = require('../connection/pool')
 const ensureToken = require('./tokens')
 const bP = require('body-parser').json()
 
@@ -13,17 +13,18 @@ module.exports = function(app) {
       }
       else {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
-          connection.connect()
-          connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
-          function(error, result) {
-            if(error) {
-              response.status(500).send({error: "error during the query, wrong arguments"})
-            }
-            else {
-              response.send({error: ""})
-            }
+          pool.getConnection(function(err, connection) {
+            connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
+            function(error, result) {
+              connection.release()
+              if(error) {
+                response.status(500).send({error: "error during the query, wrong arguments"})
+              }
+              else {
+                response.send({error: ""})
+              }
+            })
           })
-          connection.end()
         }
         else {
           response.status(404).send({error: "data type is wrong!"})
@@ -40,17 +41,18 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
-        function(error, result) {
-          if(error) {
-            response.status(500).send({error: "error during the query, wrong arguments"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          connection.query('INSERT INTO roles(name) VALUES(' + connection.escape(inp.name) + ')',
+          function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "error during the query, wrong arguments"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -63,17 +65,18 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
-        function(error, result) {
-          if(error) {
-            response.status(500).send({error: "error during the query, wrong arguments"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          connection.query('INSERT INTO departments(name) VALUES(' + connection.escape(inp.name) + ')',
+          function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "error during the query, wrong arguments"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -92,47 +95,49 @@ module.exports = function(app) {
             (typeof surname === 'string' || surname instanceof String)) {
           let login = surname.substr(0, (surname.indexOf(' ') < 0) ? (surname.length):surname.indexOf(' ')) + '_'
                     + name.substr(0, (name.indexOf(' ') < 0) ? (name.length):name.indexOf(' '))
-          connection.connect()
-          async.waterfall([
-            function(callback) {
-              let checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
-              connection.query(checkForLogin, function(error, rows) {
-                let number = ""
-                if(rows.length > 0) {
-                  number = rows[rows.length-1].login.match(/\d+/)
-                  if(number != null) {
-                    number = parseInt(number) + 1
+          pool.getConnection(function(err, connection) {
+            async.waterfall([
+              function(callback) {
+                let checkForLogin = 'SELECT login FROM users WHERE login LIKE ' + connection.escape(login.toLowerCase() + '%') + ' ORDER BY login Desc LIMIT 1'
+                connection.query(checkForLogin, function(error, rows) {
+                  let number = ""
+                  if(rows.length > 0) {
+                    number = rows[rows.length-1].login.match(/\d+/)
+                    if(number != null) {
+                      number = parseInt(number) + 1
+                    }
+                    else {
+                      number = 1
+                    }
+                  }
+                  login = login + number
+                  callback(null, login)
+                })
+              },
+              function(login, callback) {
+                let insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
+                            + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
+                            + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
+                connection.query(insertUser, function(error, rows) {
+                  if(error) {
+                    callback("error during the query, wrong arguments")
                   }
                   else {
-                    number = 1
+                    callback(null, {login:login.toLowerCase(), password: inp.phone})
                   }
-                }
-                login = login + number
-                callback(null, login)
-              })
-            },
-            function(login, callback) {
-              let insertUser = 'INSERT INTO users(roleid, name, surname, login, password, phone, email) VALUES(' + connection.escape(inp.roleid) + ', '
-                          + connection.escape(name) + ', ' + connection.escape(surname) + ', ' + connection.escape(login.toLowerCase()) + ', ' + connection.escape(inp.phone) + ','
-                          + connection.escape(inp.phone) + ', ' + connection.escape(inp.email) + ')'
-              connection.query(insertUser, function(error, rows) {
-                if(error) {
-                  callback("error during the query, wrong arguments")
-                }
-                else {
-                  callback(null, {login:login.toLowerCase(), password: inp.phone})
-                }
-              })
-            }],
-          function (error, json) {
-            if(error) {
-              response.status(500).send({error: "error during the query, wrong arguments"})
-            }
-            else {
-              response.send(json)
-            }
-            connection.end()
+                })
+              }],
+            function (error, json) {
+              connection.release()
+              if(error) {
+                response.status(500).send({error: "error during the query, wrong arguments"})
+              }
+              else {
+                response.send(json)
+              }
+            })
           })
+
         }
         else {
           response.status(400).send({error: "wrong data type"})
@@ -149,17 +154,18 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(400).send({error: "wrong department id"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          let query = 'INSERT INTO categories(name, departmentid) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.departmentid) + ')'
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(400).send({error: "wrong department id"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -172,17 +178,18 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
-        function(error, result) {
-          if(error) {
-            response.status(500).send({error: "error during the query, wrong arguments"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          connection.query('INSERT INTO statuses(name) VALUES(' + connection.escape(inp.name) + ')',
+          function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "error during the query, wrong arguments"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -195,17 +202,18 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
-        connection.query(query, function(error, result) {
-          if(error) {
-            response.status(500).send({error: "error during the query, wrong arguments"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          let query = 'INSERT INTO variables(name, value) VALUES("percentage", ' + connection.escape(inp.percentage) + ')'
+          connection.query(query, function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "error during the query, wrong arguments"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -218,19 +226,20 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
-                  + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
-        connection.query(query,
-        function(error, result) {
-          if(error) {
-            response.status(500).send({error: "error during the query, wrong arguments"})
-          }
-          else {
-            response.send({error: ""})
-          }
+        pool.getConnection(function(err, connection) {
+          let query = 'INSERT INTO meals(name, categoryid, description, price) VALUES(' + connection.escape(inp.name) + ', ' + connection.escape(inp.categoryid)  + ', '
+                    + connection.escape(inp.description) + ', ' + connection.escape(inp.price) + ')'
+          connection.query(query,
+          function(error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: "error during the query, wrong arguments"})
+            }
+            else {
+              response.send({error: ""})
+            }
+          })
         })
-        connection.end()
       }
     })
   })
@@ -247,68 +256,70 @@ module.exports = function(app) {
            response.status(400).send({error: "error, send meals"})
          }
          else {
-           connection.connect()
-           async.waterfall([
-           function(callback) {
-             let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
-             connection.query(checkTable, function(error, rows) {
-               if(error || rows.length > 0) {
-                 callback("table is open, close it first")
-               }
-               else {
-                 callback(null)
-               }
-             })
-           },
-           function(callback) {
-             let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
-             connection.query(getUserID, function(error, rows) {
+           pool.getConnection(function(err, connection) {
+             async.waterfall([
+               function(callback) {
+let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
+connection.query(checkTable, function(error, rows) {
+if(error || rows.length > 0) {
+ callback("table is open, close it first")
+}
+else {
+ callback(null)
+}
+})
+},
+               function(callback) {
+let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
+connection.query(getUserID, function(error, rows) {
+if(error) {
+ callback("cannot find waiter id")
+}
+else {
+ callback(null, rows[0].id)
+}
+})
+},
+               function(userID, callback) {
+              let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
+              connection.query(insertOrder, function(error, order) {
+              if(error || order == null || order == undefined) {
+               callback("error during the query, wrong arguments")
+              }
+              else {
+               callback(null, order.insertId)
+              }
+              })
+              },
+               function(orderID, callback) {
+                 let _query =  ""
+                 if(!inp.meals) {
+                   response.status(400).send({error: "error during the query, missing meals"})
+                 }
+                 inp.meals.forEach(function(item) {
+                   _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count)
+                           + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
+                })
+                connection.query(_query, function(error, result) {
+                  if(error) {
+                    callback(deleteEverything(orderID))
+                  }
+                  else {
+                    callback(null, "")
+                  }
+                })
+              }
+           ],
+             function (error, result) {
+               connection.release()
                if(error) {
-                 callback("cannot find waiter id")
+                 response.status(400).send({error: error})
                }
                else {
-                 callback(null, rows[0].id)
+                 response.send({error: result})
                }
              })
-           },
-           function(userID, callback) {
-             let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
-             connection.query(insertOrder, function(error, order) {
-               if(error || order == null || order == undefined) {
-                 callback("error during the query, wrong arguments")
-               }
-               else {
-                 callback(null, order.insertId)
-               }
-             })
-           },
-           function(orderID, callback) {
-            let _query =  ""
-            if(!inp.meals) {
-              response.status(400).send({error: "error during the query, missing meals"})
-            }
-            inp.meals.forEach(function(item) {
-              _query += 'INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(' + connection.escape(orderID) + ', ' + connection.escape(item.count)
-                      + ', (SELECT id FROM statuses WHERE name = "to do"),' + item.id + ');'
-            })
-	           connection.query(_query, function(error, result) {
-               if(error) {
-                 callback(deleteEverything(orderID))
-               }
-               else {
-                 callback(null, "")
-               }
-             })
-           }],
-         function (error, result) {
-           if(error) {
-             response.status(400).send({error: error})
-           }
-           else {
-             response.send({error: result})
-           }
-           connection.end()
-         })
+           })
          }
        }
      })
@@ -357,41 +368,41 @@ module.exports = function(app) {
       }
       else {
         if (typeof inp.orderid === 'number' || inp.orderid instanceof Number) {
-          connection.connect()
-          async.waterfall([
-            function(callback) {
-              let query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
-              connection.query(query,
-              function(error, result) {
-                if(error) {
-                  callback("error during the query, wrong arguments")
-                }
-                else {
-                  callback(null, inp.orderid)
-                }
-              })
-            },
-            function(orderID, callback) {
-              let updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
-              connection.query(updateStatus, function(error, order) {
-                if(error) {
-                  callback("error during the query, wrong arguments")
-                }
-                else {
-                  callback(null, "")
-                }
-              })
-            }],
-          function (error, result) {
-            if(error) {
-              response.status(500).send({error: error})
-            }
-            else {
-              response.send({error: result})
-            }
-            connection.end()
+          pool.getConnection(function(err, connection) {
+            async.waterfall([
+              function(callback) {
+                let query = 'INSERT INTO checks(orderid) VALUES(' + connection.escape(inp.orderid) + ')'
+                connection.query(query,
+                function(error, result) {
+                  if(error) {
+                    callback("error during the query, wrong arguments")
+                  }
+                  else {
+                    callback(null, inp.orderid)
+                  }
+                })
+              },
+              function(orderID, callback) {
+                let updateStatus = 'UPDATE orders SET isitopen = 0 WHERE id = ' + connection.escape(orderID)
+                connection.query(updateStatus, function(error, order) {
+                  if(error) {
+                    callback("error during the query, wrong arguments")
+                  }
+                  else {
+                    callback(null, "")
+                  }
+                })
+              }],
+            function (error, result) {
+              connection.release()
+              if(error) {
+                response.status(500).send({error: error})
+              }
+              else {
+                response.send({error: result})
+              }
+            })
           })
-
         }
         else {
           response.status(404).send({error: "data type is wrong!"})
@@ -412,33 +423,35 @@ module.exports = function(app) {
           response.status(404).send({error: "error, send meals"})
         }
         else {
-          connection.connect()
-          async.waterfall([
-          function(callback) {
-            let _query =  ""
-            inp.meals.forEach(function(item) {
-              _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
-                      + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
-                      + connection.escape(item.count) + ';'
+          pool.getConnection(function(err, connection) {
+            async.waterfall([
+              function(callback) {
+                let _query =  ""
+                inp.meals.forEach(function(item) {
+                  _query += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
+                          + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
+                          + connection.escape(item.count) + ';'
+                })
+                 connection.query(_query, function(error, result) {
+                   if(error) {
+                     console.log(error);
+                     callback("error during the query, wrong arguments")
+                   }
+                   else {
+                     callback(null, "")
+                   }
+                 })
+               }
+             ],
+            function (error, result) {
+              connection.release()
+              if(error) {
+                response.status(500).send({error: error})
+              }
+              else {
+                response.send({error: result})
+              }
             })
-             connection.query(_query, function(error, result) {
-               if(error) {
-                 console.log(error);
-                 callback("error during the query, wrong arguments")
-               }
-               else {
-                 callback(null, "")
-               }
-             })
-           }],
-          function (error, result) {
-            if(error) {
-              response.status(500).send({error: error})
-            }
-            else {
-              response.send({error: result})
-            }
-            connection.end()
           })
         }
       }
@@ -453,44 +466,46 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        connection.connect()
-        async.waterfall([
-          function(callback) {
-            let query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
-                      + " AND password = " + connection.escape(inp.oldpassword)
-             connection.query(query, function(error, result) {
-               if(error) {
-                 callback("error during the query, wrong arguments")
-               }
-               else {
-                 if(result.length > 0) {
-                   callback(null, result[0].id)
+        pool.getConnection(function(err, connection) {
+          async.waterfall([
+            function(callback) {
+              let query = "SELECT id FROM users WHERE login = " + connection.escape(request.headers['login'])
+                        + " AND password = " + connection.escape(inp.oldpassword)
+               connection.query(query, function(error, result) {
+                 if(error) {
+                   callback("error during the query, wrong arguments")
                  }
                  else {
-                   callback("wrong old password")
+                   if(result.length > 0) {
+                     callback(null, result[0].id)
+                   }
+                   else {
+                     callback("wrong old password")
+                   }
                  }
-               }
-             })
-           },
-           function(userid, callback) {
-             let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
-              connection.query(query, function(error, result) {
-                if(error) {
-                  callback("error during the query, wrong arguments")
-                }
-                else {
-                  callback(null, "")
-                }
-              })
-            }],
-        function (error, result) {
-          if(error) {
-            response.status(500).send({error: error})
-          }
-          else {
-            response.send({error: result})
-          }
-          connection.end()
+               })
+             },
+             function(userid, callback) {
+               let query = "UPDATE users SET password = " + connection.escape(inp.newpassword) + " WHERE id = " + connection.escape(userid)
+                connection.query(query, function(error, result) {
+                  if(error) {
+                    callback("error during the query, wrong arguments")
+                  }
+                  else {
+                    callback(null, "")
+                  }
+                })
+              }
+            ],
+          function (error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: error})
+            }
+            else {
+              response.send({error: result})
+            }
+          })
         })
       }
     })
