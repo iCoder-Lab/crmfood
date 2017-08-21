@@ -259,38 +259,38 @@ module.exports = function(app) {
            pool.getConnection(function(err, connection) {
              async.waterfall([
                function(callback) {
-let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
-connection.query(checkTable, function(error, rows) {
-if(error || rows.length > 0) {
- callback("table is open, close it first")
-}
-else {
- callback(null)
-}
-})
-},
+                 let checkTable = 'SELECT id FROM orders WHERE isitopen = true AND tableid = ' + connection.escape(inp.tableid)
+                 connection.query(checkTable, function(error, rows) {
+                   if(error || rows.length > 0) {
+                    callback("table is open, close it first")
+                   }
+                   else {
+                    callback(null)
+                   }
+                 })
+               },
                function(callback) {
-let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
-connection.query(getUserID, function(error, rows) {
-if(error) {
- callback("cannot find waiter id")
-}
-else {
- callback(null, rows[0].id)
-}
-})
-},
+                 let getUserID = 'SELECT id FROM users WHERE login = ' + connection.escape(request.headers['login'])
+                 connection.query(getUserID, function(error, rows) {
+                   if(error) {
+                    callback("cannot find waiter id")
+                   }
+                   else {
+                    callback(null, rows[0].id)
+                   }
+                 })
+                },
                function(userID, callback) {
-              let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
-              connection.query(insertOrder, function(error, order) {
-              if(error || order == null || order == undefined) {
-               callback("error during the query, wrong arguments")
-              }
-              else {
-               callback(null, order.insertId)
-              }
-              })
-              },
+                 let insertOrder = 'INSERT INTO orders(waiterid, tableid) VALUES(' + connection.escape(userID) + ', ' + connection.escape(inp.tableid) + ');'
+                 connection.query(insertOrder, function(error, order) {
+                   if(error || order == null || order == undefined) {
+                    callback("error during the query, wrong arguments")
+                   }
+                   else {
+                    callback(null, order.insertId)
+                   }
+                 })
+               },
                function(orderID, callback) {
                  let _query =  ""
                  if(!inp.meals) {
@@ -302,7 +302,8 @@ else {
                 })
                 connection.query(_query, function(error, result) {
                   if(error) {
-                    callback(deleteEverything(orderID))
+                    deleteEverything(connection, orderID)
+                    callback("wrong meal id")
                   }
                   else {
                     callback(null, "")
@@ -325,7 +326,7 @@ else {
      })
    })
 
-  function deleteEverything(orderID) {
+  function deleteEverything(connection, orderID) {
     async.waterfall([
       function(callback) {
         let deleteOrder = 'DELETE FROM orders WHERE id = ' + connection.escape(orderID)

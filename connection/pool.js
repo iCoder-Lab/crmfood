@@ -3,8 +3,9 @@ var mysql = require('mysql')
 var pool  = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: '1amcoder',
-    database: 'LiveSport'
+    password: 'root',
+    database: 'crmfood',
+    multipleStatements: true
 })
 
 module.exports = pool

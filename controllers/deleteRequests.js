@@ -178,6 +178,7 @@ module.exports = function(app) {
           connection.query(query, function(error, result) {
             connection.release()
             if(error) {
+              console.log(error);
               response.status(500).send({error: "some internal error"});
             }
             else {
