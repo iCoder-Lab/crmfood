@@ -14,14 +14,36 @@ module.exports = function(app) {
       else {
         if (typeof inp.name === 'string' || inp.name instanceof String) {
           pool.getConnection(function(err, connection) {
-            connection.query('INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')',
-            function(error, result) {
+            async.waterfall([
+              function(callback) {
+                let check = 'SELECT id FROM tables WHERE name = ' + connection.escape(inp.name)
+                connection.query(check, function(error, rows) {
+                  if(rows.length > 0) {
+                    callback('this table already exists')
+                  }
+                  else {
+                    callback(null)
+                  }
+                })
+              },
+              function(callback) {
+                let insertTable= 'INSERT INTO tables(name) VALUES(' + connection.escape(inp.name) + ')'
+                connection.query(insertTable, function(error, rows) {
+                  if(error) {
+                    callback("error during the query, wrong arguments")
+                  }
+                  else {
+                    callback(null, "")
+                  }
+                })
+              }],
+            function (error, result) {
               connection.release()
               if(error) {
-                response.status(500).send({error: "error during the query, wrong arguments"})
+                response.status(400).send({error: error})
               }
               else {
-                response.send({error: ""})
+                response.send({error: result})
               }
             })
           })
