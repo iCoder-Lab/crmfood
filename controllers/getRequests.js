@@ -457,9 +457,9 @@ module.exports = function(app) {
         response.status(401).send({error: "invalid header"})
       }
       else {
-        let query = 'select o.id, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
-                  + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.id = ' + connection.escape(request.params.id) +' GROUP BY o.id'
         pool.getConnection(function(err, connection) {
+          let query = 'select o.id, GROUP_CONCAT(m.id) as mealid, GROUP_CONCAT(m.name) as mealname, GROUP_CONCAT(mo.count) as mealcount '
+                    + 'from orders as o inner join mealfororder as mo on o.id = mo.orderid inner join meals as m on m.id = mo.mealid WHERE o.id = ' + connection.escape(request.params.id) +' GROUP BY o.id'
           connection.query(query, function(error, result) {
             connection.release()
             if(error) {

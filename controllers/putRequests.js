@@ -64,7 +64,6 @@ module.exports = function(app) {
     })
   })
 
-
   app.put('/changePassword', bP, ensureToken, function(request, response) {
     let inp = request.body
     jwt.verify(request.token, request.headers['login'], function(error, data) {

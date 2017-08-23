@@ -197,45 +197,45 @@ module.exports = function(app) {
       }
       else {
         pool.getConnection(function(err, connection) {
-          async.waterfall([
-            function(callback) {
-              var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
-                          connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-              connection.query(query, function(error, result) {
-                if(error) {
-                  callback("could not delete meals of the order");
-                }
-                else {
-                  callback((result.affectedRows > 0) ? null:"there is no such an meal");
-                }
-              });
-            },
-            function(callback) {
-              var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = " +
-                          connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-              connection.query(query, function(error, result) {
-                if(error) {
-                  callback("could not delete the order");
-                }
-                else {
-                  if(result.affectedRows > 0) {
-                    callback(null, "");
+            async.waterfall([
+              function(callback) {
+                var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
+                            connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+                connection.query(query, function(error, result) {
+                  if(error) {
+                    callback("could not delete meals of the order");
                   }
                   else {
-                    callback("there is no such an order");
+                    callback((result.affectedRows > 0) ? null:"there is no such an meal");
                   }
-                }
-              });
-            }],
-          function (error, result) {
-            connection.release()
-            if(error) {
-              response.status(404).send({error: error});
-            }
-            else {
-              response.send({error: result});
-            }
-          });
+                });
+              },
+              function(callback) {
+                var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM orders WHERE id = " +
+                            connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
+                connection.query(query, function(error, result) {
+                  if(error) {
+                    callback("could not delete the order");
+                  }
+                  else {
+                    if(result.affectedRows > 0) {
+                      callback(null, "");
+                    }
+                    else {
+                      callback("there is no such an order");
+                    }
+                  }
+                });
+              }],
+            function (error, result) {
+              connection.release()
+              if(error) {
+                response.status(404).send({error: error});
+              }
+              else {
+                response.send({error: result});
+              }
+            });
         })
       }
     });
@@ -264,24 +264,51 @@ module.exports = function(app) {
     });
   });
 
-  app.delete('/mealsToOrder/:orderid/:mealid', function(request, response) {
+  app.delete('/mealsToOrder/:orderid/:mealid', ensureToken, function(request, response) {
     jwt.verify(request.token, request.headers.login, function(error, data) {
       if(error) {
         response.status(401).send({error: "invalid header"});
       }
       else {
         pool.getConnection(function(err, connection) {
-          var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
-                      connection.escape(request.params.id) + "; SET FOREIGN_KEY_CHECKS=1;";
-          connection.query(query, function(error, result) {
+          async.waterfall([
+            function(callback) {
+              var query = 'SELECT id FROM mealfororder WHERE orderid = ' +
+                          connection.escape(request.params.orderid)
+              connection.query(query, function(error, result) {
+                if(error) {
+                  callback('something went wrong');
+                }
+                else if(result.length < 2) {
+                  callback('cannot delete last meal')
+                }
+                else {
+                  callback(null);
+                }
+              });
+            },
+            function(callback) {
+              var query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM mealfororder WHERE orderid = " +
+                          connection.escape(request.params.orderid) + " AND mealid = " +
+                          connection.escape(request.params.mealid) + "; SET FOREIGN_KEY_CHECKS=1;";
+              connection.query(query, function(error, result) {
+                if(error) {
+                  callback("could not delete the order");
+                }
+                else {
+                  return callback(null, "")
+                }
+              });
+            }],
+          function (error, result) {
             connection.release()
             if(error) {
-              response.status(500).send({error:"could not delete meals of the order"});
+              response.status(404).send({error: error});
             }
             else {
-              response.send({error: (result.affectedRows > 0)? "":"could not delete meals of the order"});
+              response.send({error: result});
             }
-          });
+          })
         })
       }
     });
