@@ -116,4 +116,59 @@ module.exports = function(app) {
       }
     })
   })
+
+  app.put('/orders', bP, ensureToken, function(request, response) {
+    let inp = request.body
+    jwt.verify(request.token, request.headers['login'], function(error, data) {
+      if(error) {
+        console.log(error);
+        response.status(401).send({error: "invalid header"})
+      }
+      else {
+        pool.getConnection(function(err, connection) {
+          async.waterfall([
+            function(callback) {
+              let deleteMeals =  "DELETE FROM mealfororder WHERE orderid = " + inp.orderid
+
+               connection.query(deleteMeals, function(error, result) {
+                 if(error) {
+                   console.log(error);
+                   callback("error during the query, wrong arguments")
+                 }
+                 else {
+                   callback(null)
+                 }
+               })
+             },
+             function(callback) {
+               let insertMeals = ""
+               inp.meals.forEach(function(item) {
+                 insertMeals += "INSERT INTO mealfororder(orderid, count, statusid, mealid) VALUES(" + connection.escape(inp.orderid) + ", "
+                         + connection.escape(item.count) + ', (SELECT id FROM statuses WHERE name = "to do"), ' + connection.escape(item.id) + ") ON DUPLICATE KEY UPDATE count = count + "
+                         + connection.escape(item.count) + ';'
+               })
+              connection.query(insertMeals, function(error, result) {
+                if(error) {
+                  console.log(error);
+                  callback("error during the query, wrong arguments")
+                }
+                else {
+                  callback(null, "")
+                }
+              })
+            }
+           ],
+          function (error, result) {
+            connection.release()
+            if(error) {
+              response.status(500).send({error: error})
+            }
+            else {
+              response.send({error: result})
+            }
+          })
+        })
+      }
+    })
+  })
 }
